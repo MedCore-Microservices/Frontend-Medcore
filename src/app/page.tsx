@@ -13,7 +13,7 @@ export default function HomePage() {
           Iniciar Sesión
         </a>
         <a
-          href="/seguridad/registro-publico-usuario"
+          href="/seguridad/registro-publico-usuarios"
           className="px-6 py-3 bg-gray-200 text-gray-800 font-medium rounded-lg hover:bg-gray-300 transition-colors"
         >
           Registrarse
