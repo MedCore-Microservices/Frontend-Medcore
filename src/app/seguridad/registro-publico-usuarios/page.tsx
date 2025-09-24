@@ -4,15 +4,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from "@/components/ui/form"; // ← SÍ
+import { Form } from "@/components/ui/form"; 
 import { useForm } from "react-hook-form";   
 import { z } from 'zod';
+import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
+import { registerUser } from "./actions";
+import { Button } from "@/components/ui/button";
 
 const formSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6, "Password must contain at least 6 characters").max(100),
-  confirmPassword: z.string().min(6, "Password must contain at least 6 characters").max(100),
-});
+
+}).and(passwordMatchSchema);
 
 export default function RegistroPublicoUsuariosPage() {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -20,12 +22,17 @@ export default function RegistroPublicoUsuariosPage() {
     defaultValues: {
       email: '',
       password: '',
-      confirmPassword: '',
+      passwordConfirm: '',
     },
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+   const response = await registerUser({
+      email: data.email,
+      password: data.password,
+      passwordConfirm: data.passwordConfirm
+   });
+   console.log(response);
 
   };
 
@@ -71,7 +78,7 @@ export default function RegistroPublicoUsuariosPage() {
 
               <FormField
                 control={form.control}
-                name="confirmPassword"
+                name="passwordConfirm"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Confirm Password</FormLabel>
@@ -83,9 +90,8 @@ export default function RegistroPublicoUsuariosPage() {
                 )}
               />
 
-              <button type="submit" className="w-full mt-4">
-                Register
-              </button>
+                <Button type="submit">Register</Button>
+                
             </form>
           </Form>
         </CardContent>
