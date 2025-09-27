@@ -1,12 +1,13 @@
-
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3001";
-
+const BACKEND_URL ="http://ms-auth:3000"
 export async function registerUsuario(email: string, password: string, fullname: string) {
   console.log("📡 Llamando al backend con:", { email, fullname }); 
-  const res = await fetch(`${BACKEND_URL}/login`, {
+  console.log("🔗 URL del backend:", BACKEND_URL); // ← Agrega esto para debug
+  console.log("🌍 NODE_ENV:", process.env.NODE_ENV);
+  
+  const res = await fetch(`${BACKEND_URL}/api/auth/seguridad/registro-publico-usuarios`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password,fullname }),
+    body: JSON.stringify({ email, password, fullname }),
   });
 
   if (!res.ok) {
@@ -18,7 +19,6 @@ export async function registerUsuario(email: string, password: string, fullname:
         errorMessage = errorData.message;
       }
     } catch (e) {
-     
       errorMessage = res.statusText || "Error de conexión";
     }
     throw new Error(errorMessage);

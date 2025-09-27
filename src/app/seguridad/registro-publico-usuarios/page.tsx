@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
 import { registerUser } from "./actions";
 import { Button } from "@/components/ui/button";
+import { useState } from "react"; // ← IMPORTAR useState
 
 // Esquema actualizado: incluye fullname y valida contraseñas
 const formSchema = z.object({
@@ -20,6 +21,9 @@ const formSchema = z.object({
 }).and(passwordMatchSchema);
 
 export default function RegistroPublicoUsuariosPage() {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -31,16 +35,30 @@ export default function RegistroPublicoUsuariosPage() {
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const response = await registerUser({
-      email: data.email,
-      fullname: data.fullname,
-      password: data.password,
-      passwordConfirm: data.passwordConfirm,
-    });
-    console.log(response);
-   
+    setLoading(true);
+    setMessage(null);
     
-
+    try {
+      const response = await registerUser({
+        email: data.email,
+        fullname: data.fullname,
+        password: data.password,
+        passwordConfirm: data.passwordConfirm,
+      });
+      
+      console.log("Respuesta del servidor:", response);
+      
+      if (response.error) {
+        setMessage({ type: 'error', text: response.message });
+      } else {
+        setMessage({ type: 'success', text: '¡Usuario registrado exitosamente!' });
+        form.reset();
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -51,6 +69,17 @@ export default function RegistroPublicoUsuariosPage() {
           <CardDescription>Crea una nueva cuenta</CardDescription>
         </CardHeader>
         <CardContent>
+          {/* Mensaje de feedback */}
+          {message && (
+            <div className={`p-3 rounded mb-4 ${
+              message.type === 'success' 
+                ? 'bg-green-100 text-green-800 border border-green-200' 
+                : 'bg-red-100 text-red-800 border border-red-200'
+            }`}>
+              {message.text}
+            </div>
+          )}
+          
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4">
               
@@ -115,8 +144,12 @@ export default function RegistroPublicoUsuariosPage() {
               />
 
               {/* Botón de envío */}
-              <Button type="submit" className="mt-2">
-                Registrarse
+              <Button 
+                type="submit" 
+                className="mt-2"
+                disabled={loading}
+              >
+                {loading ? "Registrando..." : "Registrarse"}
               </Button>
             </form>
           </Form>

@@ -21,6 +21,7 @@ export const registerUser = async ({
   password: string;
   passwordConfirm: string;
 }) => {
+   console.log('🔍 SERVER ACTION: Iniciando registro...');
 
   const newUserValidation = newUserSchema.safeParse({
     email,
@@ -38,13 +39,16 @@ export const registerUser = async ({
 
   // 3. Si la validación pasa, llamamos al backend
   try {
+     console.log('📡 Llamando a registerUsuario...'); // ← LOG
     const result = await registerUsuario(email, password, fullname);
+        console.log('✅ Resultado del servicio:', result); // ← LOG
 
     return {
       success: true,
       data: result
     };
   } catch (error: any) {
+     console.log('❌ Error en server action:', error); // ← LOG
     return {
       error: true,
       message: error.message || "Error al registrar el usuario en el servidor"

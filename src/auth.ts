@@ -3,6 +3,8 @@ import Credentials from "next-auth/providers/credentials";
 import { registerUsuario } from "./app/servicios/seguridad.service";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
+   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       name: "Credenciales",
