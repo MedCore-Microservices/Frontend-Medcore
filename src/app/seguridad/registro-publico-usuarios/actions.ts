@@ -3,7 +3,7 @@
 
 import { z } from "zod";
 import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
-import { registerUsuario } from "../../servicios/seguridad.service";
+import { registerUsuario, resendVerificationCode, verifyEmailCode } from "../../servicios/seguridad.service";
 
 const newUserSchema = z.object({
   email: z.string().email(),
@@ -45,13 +45,52 @@ export const registerUser = async ({
 
     return {
       success: true,
-      data: result
+      data: result,
+       message: "Usuario registrado. Por favor verifica tu email con el código enviado.",
+      requiresVerification: true // ← NUEVO: indica que necesita verificación
+
     };
   } catch (error: any) {
      console.log('❌ Error en server action:', error); // ← LOG
     return {
       error: true,
       message: error.message || "Error al registrar el usuario en el servidor"
+    };
+  }
+};
+
+export const verifyEmail = async (email: string, code: string) => {
+  try {
+    console.log('🔍 Verificando código para:', email);
+    const result = await verifyEmailCode(email, code);
+    
+    return {
+      success: true,
+      message: result.message,
+      data: result.user
+    };
+  } catch (error: any) {
+    return {
+      error: true,
+      message: error.message || "Error al verificar el código"
+    };
+  }
+};
+
+// Acción para reenviar código
+export const resendVerification = async (email: string) => {
+  try {
+    console.log('🔍 Reenviando código para:', email);
+    const result = await resendVerificationCode(email);
+    
+    return {
+      success: true,
+      message: result.message
+    };
+  } catch (error: any) {
+    return {
+      error: true,
+      message: error.message || "Error al reenviar el código"
     };
   }
 };

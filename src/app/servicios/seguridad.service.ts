@@ -55,3 +55,61 @@ export async function validarCodigo2FA(usuarioId: string, codigo: string) {
 
   return res.json();
 }
+
+// Verificar código de email
+export async function verifyEmailCode(email: string, code: string) {
+  const res = await fetch(`${BACKEND_URL}/api/auth/verify-email`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, code }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Error al verificar código");
+  }
+
+  return await res.json();
+}
+
+// Reenviar código de verificación
+export async function resendVerificationCode(email: string) {
+  const res = await fetch(`${BACKEND_URL}/api/auth/resend-verification`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Error al reenviar código");
+  }
+
+  return await res.json();
+}
+
+
+export async function loginUser(email: string, password: string) {
+  console.log("📡 Intentando login para:", email);
+  
+  const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!res.ok) {
+    let errorMessage = "Error en el login";
+    try {
+      const errorData = await res.json();
+      if (typeof errorData.message === 'string') {
+        errorMessage = errorData.message;
+      }
+    } catch (e) {
+      errorMessage = res.statusText || "Error de conexión";
+    }
+    throw new Error(errorMessage);
+  }
+
+  return await res.json();
+}
