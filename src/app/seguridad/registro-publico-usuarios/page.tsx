@@ -10,7 +10,8 @@ import { z } from 'zod';
 import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
 import { registerUser } from "./actions";
 import { Button } from "@/components/ui/button";
-import { useState } from "react"; // ← IMPORTAR useState
+import { useState } from "react";
+import VerifyEmailModal from "../components/VerifyEmailModal"; // ← NUEVO IMPORT
 
 // Esquema actualizado: incluye fullname y valida contraseñas
 const formSchema = z.object({
@@ -23,6 +24,10 @@ const formSchema = z.object({
 export default function RegistroPublicoUsuariosPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  
+  // ✅ NUEVOS ESTADOS PARA EL MODAL
+  const [showVerifyModal, setShowVerifyModal] = useState(false);
+  const [registeredUser, setRegisteredUser] = useState<{email: string, fullname: string} | null>(null);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,14 +56,26 @@ export default function RegistroPublicoUsuariosPage() {
       if (response.error) {
         setMessage({ type: 'error', text: response.message });
       } else {
-        setMessage({ type: 'success', text: '¡Usuario registrado exitosamente!' });
-        form.reset();
+        // ✅ MOSTRAR MODAL EN LUGAR DE MENSAJE DE ÉXITO
+        setRegisteredUser({
+          email: data.email,
+          fullname: data.fullname
+        });
+        setShowVerifyModal(true);
+        // NO hacer form.reset() aquí, lo haremos después de verificación
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
     } finally {
       setLoading(false);
     }
+  };
+
+  // ✅ FUNCIÓN CUANDO LA VERIFICACIÓN ES EXITOSA
+  const handleVerificationSuccess = () => {
+    setMessage({ type: 'success', text: '¡Cuenta verificada exitosamente! Ya puedes iniciar sesión.' });
+    form.reset(); // Limpiar formulario solo después de verificación exitosa
+    setRegisteredUser(null);
   };
 
   return (
@@ -155,6 +172,17 @@ export default function RegistroPublicoUsuariosPage() {
           </Form>
         </CardContent>
       </Card>
+
+      {/* ✅ MODAL DE VERIFICACIÓN */}
+      {registeredUser && (
+        <VerifyEmailModal
+          isOpen={showVerifyModal}
+          onClose={() => setShowVerifyModal(false)}
+          userEmail={registeredUser.email}
+          userFullname={registeredUser.fullname}
+          onVerificationSuccess={handleVerificationSuccess}
+        />
+      )}
     </main>
   );
 }

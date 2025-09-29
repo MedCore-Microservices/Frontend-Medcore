@@ -1,20 +1,15 @@
-# Usa una imagen de Node.js
+# Dockerfile.dev (o simplemente Dockerfile si solo usas Docker para desarrollo)
 FROM node:20-alpine
 
-# Directorio de trabajo
 WORKDIR /app
 
-# Copia package.json y package-lock.json
+# Copia package.json primero
 COPY package*.json ./
 
-# Instala todas las dependencias
+# Instala dependencias
 RUN npm ci
 
-# Copia todo el código fuente
-COPY . .
+EXPOSE 3000
 
-# Solo build de Next.js (NO prisma generate)
-RUN npm run build
-
-# EJECUTA EN FORMATO JSON CORRECTO:
+# El código se montará desde el host vía volumen
 CMD ["npm", "run", "dev"]
