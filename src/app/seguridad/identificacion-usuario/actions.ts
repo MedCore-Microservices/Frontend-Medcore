@@ -2,43 +2,54 @@
 
 import { passwordSchema } from "@/validation/passwordSchema"
 import z from "zod"
-import { loginUser } from "../../servicios/seguridad.service";
+import { signIn } from "@/auth";
 
-export const loginWithCredentials=async({
+export const loginWithCredentials = async ({
     email,
     password
 }: {
-    email:string,
-    password:string
-})=>{
-    const loginSchema=z.object({
-        email:z.string().email(),
-        password:passwordSchema
+    email: string,
+    password: string
+}) => {
+    const loginSchema = z.object({
+        email: z.string().email(),
+        password: passwordSchema
     })
-    const loginValidation=loginSchema.safeParse({
+    
+    const loginValidation = loginSchema.safeParse({
         email,
         password
     })
-    if(!loginValidation.success){
+    
+    if (!loginValidation.success) {
         return {
-            error:true,
-            message:loginValidation.error.issues[0]?.message ??"Error de validación"
-
-
+            error: true,
+            message: loginValidation.error.issues[0]?.message ?? "Error de validación"
         }
     }
 
-      try {
-        console.log('📡 Intentando login para:', email);
-        const result = await loginUser(email, password);
+    try {
+        console.log('📡 Intentando login con NextAuth para:', email);
         
+ 
+        const result = await signIn("credentials", {
+            email,
+            password,
+            redirect: false
+        });
+
+        if (result?.error) {
+            return {
+                error: true,
+                message: "Credenciales inválidas"
+            };
+        }
+
         return {
             success: true,
-            message: "Login exitoso",
-            data: result // { accessToken, refreshToken, user }
+            message: "Login exitoso"
         };
     } catch (error: any) {
-      
         const errorMessage = error.message.includes('verifica tu email') 
             ? "Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada."
             : error.message || "Error en el login";
@@ -48,5 +59,4 @@ export const loginWithCredentials=async({
             message: errorMessage
         };
     }
-
 }

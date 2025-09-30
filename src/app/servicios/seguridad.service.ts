@@ -111,5 +111,25 @@ export async function loginUser(email: string, password: string) {
     throw new Error(errorMessage);
   }
 
-  return await res.json();
+
+  const data = await res.json();
+  
+  // Asegurar que el usuario tenga un rol
+  if (data.user) {
+    // Si el backend no envía rol, lo determinamos por email
+    if (!data.user.role) {
+      data.user.role = determinarRolPorEmail(email);
+    }
+  }
+  
+  return data;
+}
+
+
+
+function determinarRolPorEmail(email: string): string {
+  if (email.includes('admin') || email.includes('administrador')) return 'admin';
+  if (email.includes('medico') || email.includes('doctor') || email.includes('dr.')) return 'medico';
+  if (email.includes('enfermero') || email.includes('enfermera') || email.includes('nurse')) return 'enfermero';
+  return 'paciente';
 }

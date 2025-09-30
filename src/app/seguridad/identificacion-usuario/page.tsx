@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { loginWithCredentials } from "./actions";
 import { useState } from "react"; // ← IMPORTAR useState
+import {useRouter} from "next/navigation";
 
 const formSchema = z.object({
    email: z.string().email(),
@@ -18,6 +19,7 @@ const formSchema = z.object({
 export default function IdentificacionUsuarioPage() {
    const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
    const [loading, setLoading] = useState(false);
+    const router = useRouter()
    
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -40,11 +42,16 @@ export default function IdentificacionUsuarioPage() {
          console.log("Respuesta del login:", response);
          
          if (response.error) {
-            // ✅ MOSTRAR MENSAJE DE ERROR (incluye "verifica tu email")
+            // MOSTRAR MENSAJE DE ERROR (incluye "verifica tu email")
             setMessage({ type: 'error', text: response.message });
          } else {
-            setMessage({ type: 'success', text: '¡Login exitoso!' });
-            // Aquí redirigir al dashboard o guardar token
+            setMessage({ type: 'success', text: '¡Login exitoso Redigiriendo!' });
+
+               setTimeout(() => {
+               router.push("/dashboard");
+               router.refresh(); // Forzar actualización
+            }, 1000);
+      
             form.reset();
          }
       } catch (error) {
@@ -62,7 +69,7 @@ export default function IdentificacionUsuarioPage() {
                <CardDescription>Inicia sesión en tu cuenta</CardDescription>
             </CardHeader>
             <CardContent>
-               {/* ✅ MOSTRAR MENSAJES - COMO EN REGISTRO */}
+               {/*  MOSTRAR MENSAJES - COMO EN REGISTRO */}
                {message && (
                   <div className={`p-3 rounded mb-4 ${
                      message.type === 'success' 
