@@ -1,4 +1,4 @@
-const BACKEND_URL ="http://ms-auth:3000"
+const BACKEND_URL ="http://localhost:3001";
 export async function registerUsuario(email: string, password: string, fullname: string) {
   console.log("📡 Llamando al backend con:", { email, fullname }); 
   console.log("🔗 URL del backend:", BACKEND_URL); // ← Agrega esto para debug

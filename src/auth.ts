@@ -1,35 +1,11 @@
+// app/api/auth/[...nextauth]/route.ts (o donde tengas tu configuración)
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { registerUsuario, loginUser } from "./app/servicios/seguridad.service"; 
-
-
-declare module "next-auth" {
-  interface User {
-    id: string;
-    email: string;
-    name: string;
-    role?: string;
-  }
-
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-      name: string;
-      role?: string;
-    }
-  }
-}
-
-declare module "next-auth/jwt" {
-  interface JWT {
-    role?: string;
-  }
-}
+import { registerUsuario, loginUser } from "@/app/servicios/seguridad.service";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
-   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       name: "Credenciales",
@@ -44,7 +20,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           let usuario;
           
-   
           if (credentials.fullname) {
             // REGISTRO
             usuario = await registerUsuario(
@@ -67,7 +42,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             id: String(usuario.id), 
             email: usuario.email,  
             name: usuario.name || usuario.email,
-            role: usuario.role || "paciente" // ← AGREGAR ROL
+            role: usuario.role || "paciente"
           };
         } catch (error) {
           console.error("Error en authorize:", error);
@@ -80,14 +55,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.sub as string;
-        session.user.role = token.role as string; 
+        session.user.role = token.role as string;
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
-        token.role = user.role; 
+        token.role = user.role;
       }
       return token;
     },
