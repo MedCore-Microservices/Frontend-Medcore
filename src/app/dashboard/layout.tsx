@@ -44,7 +44,7 @@ export default async function DashboardLayout({
                 Perfil
               </a>
               <a 
-                href="/api/auth/signout" 
+                href="/seguridad/cerrar-sesion" 
                 className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium"
               >
                 Cerrar Sesión
