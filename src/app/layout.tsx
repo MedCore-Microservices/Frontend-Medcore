@@ -1,26 +1,24 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import ClientLayout from './ClientLayout';
+// app/layout.tsx
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'MedCore',
-  description: 'Sistema Integral de Gestión Hospitalaria',
+  title: "MedCore",
+  description: "Sistema Integral de Gestión Hospitalaria",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="es">
       <body className={inter.className}>
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+        {children}
       </body>
     </html>
   );
