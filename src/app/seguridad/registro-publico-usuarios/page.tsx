@@ -12,6 +12,8 @@ import { registerUser } from "./actions";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import VerifyEmailModal from "../components/VerifyEmailModal"; // ← NUEVO IMPORT
+import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react"; // iconos de lucide-react
 
 // Esquema actualizado: incluye fullname y valida contraseñas
 const formSchema = z.object({
@@ -24,7 +26,7 @@ const formSchema = z.object({
 export default function RegistroPublicoUsuariosPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
-  
+  const router = useRouter();
   // ✅ NUEVOS ESTADOS PARA EL MODAL
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [registeredUser, setRegisteredUser] = useState<{email: string, fullname: string} | null>(null);
@@ -76,6 +78,7 @@ export default function RegistroPublicoUsuariosPage() {
     setMessage({ type: 'success', text: '¡Cuenta verificada exitosamente! Ya puedes iniciar sesión.' });
     form.reset(); // Limpiar formulario solo después de verificación exitosa
     setRegisteredUser(null);
+    setTimeout(() => router.push('/login'), 800);
   };
 
   return (
@@ -131,34 +134,37 @@ export default function RegistroPublicoUsuariosPage() {
               />
 
               {/* Campo: Contraseña */}
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="password" placeholder="••••••" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+      <FormField
+      control={form.control}
+      name="password"
+      render={({ field }) => {
+      const [showPassword, setShowPassword] = useState(false);
 
-              {/* Campo: Confirmar contraseña */}
-              <FormField
-                control={form.control}
-                name="passwordConfirm"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Confirmar contraseña</FormLabel>
-                    <FormControl>
-                      <Input {...field} type="password" placeholder="••••••" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+    return (
+      <FormItem>
+        <FormLabel>Contraseña</FormLabel>
+        <div className="relative">
+          <FormControl>
+            <Input
+              {...field}
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••"
+              className="pr-10"
+            />
+          </FormControl>
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
 
               {/* Botón de envío */}
               <Button 
@@ -170,6 +176,12 @@ export default function RegistroPublicoUsuariosPage() {
               </Button>
             </form>
           </Form>
+      <button
+      onClick={() => router.back()}
+      className="text-sm underline mr-2"
+    >
+      Volver
+      </button>
         </CardContent>
       </Card>
 
@@ -183,6 +195,6 @@ export default function RegistroPublicoUsuariosPage() {
           onVerificationSuccess={handleVerificationSuccess}
         />
       )}
-    </main>
+  </main>
   );
 }

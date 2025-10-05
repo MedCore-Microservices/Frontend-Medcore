@@ -10,6 +10,8 @@ import z from "zod";
 import { loginWithCredentials } from "./actions";
 import { useState } from "react"; // ← IMPORTAR useState
 import {useRouter} from "next/navigation";
+import { Eye, EyeOff } from "lucide-react"; // iconos de lucide-react
+
 
 const formSchema = z.object({
    email: z.string().email(),
@@ -100,19 +102,37 @@ export default function IdentificacionUsuarioPage() {
                            )}
                         />
 
-                        <FormField
-                           control={form.control}
-                           name="password"
-                           render={({ field }) => (
-                              <FormItem>
-                                 <FormLabel>Contraseña</FormLabel>
-                                 <FormControl>
-                                    <Input {...field} type="password" placeholder="••••••" />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
+<FormField
+      control={form.control}
+      name="password"
+      render={({ field }) => {
+      const [showPassword, setShowPassword] = useState(false);
+
+    return (
+      <FormItem>
+        <FormLabel>Contraseña</FormLabel>
+        <div className="relative">
+          <FormControl>
+            <Input
+              {...field}
+              type={showPassword ? "text" : "password"}
+              placeholder="••••••"
+              className="pr-10"
+            />
+          </FormControl>
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+          >
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+          </button>
+        </div>
+        <FormMessage />
+      </FormItem>
+    );
+  }}
+/>
 
                         <Button type="submit" disabled={loading}>
                            {loading ? "Iniciando sesión..." : "Login"}
@@ -120,6 +140,12 @@ export default function IdentificacionUsuarioPage() {
                      </fieldset>
                   </form>
                </Form>
+               <button
+      onClick={() => router.back()}
+      className="text-sm underline mr-2"
+    >
+      Volver
+      </button>
             </CardContent>
          </Card>
       </main>
