@@ -8,7 +8,6 @@ import React from "react";
 import DashboardShell from './components/dashboardShell';
 import { SidebarStateProvider } from "./components/SidebarStateProvider";
 
-
 export default async function DashboardLayout({ children }: { children: React.ReactNode; }) {
   const session = await auth();
 
@@ -16,24 +15,24 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const rawRole = session.user?.role ?? 'guest';
   const userRole = normalizarRol(rawRole);
+  const userName = session.user?.name ?? 'Usuario';
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <SidebarStateProvider>
         {/* Header */}
         <header className="bg-white shadow-sm border-b z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center gap-4">
-                {/* Mobile button inline — ahora está dentro del provider */}
+                {/* Mobile button inline — dentro del provider */}
                 <div className="md:hidden">
                   <MobileSidebar role={userRole} inlineButton />
                 </div>
 
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900">MedCore Dashboard</h1>
-                  <p className="text-sm text-gray-500 capitalize">Rol: {userRole} | Usuario: {session.user?.name ?? 'Usuario'}</p>
+                  <p className="text-sm text-gray-500 capitalize">Rol: {userRole} | Usuario: {userName}</p>
                 </div>
               </div>
 
@@ -53,14 +52,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </main>
         </DashboardShell>
       </SidebarStateProvider>
-
-      {/* Shell cliente que maneja sidebars y children */}
-      {/* Nota: import relativo al componente cliente */}
-      <DashboardShell role={userRole}>
-        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          {children}
-        </main>
-      </DashboardShell>
     </div>
   );
 }

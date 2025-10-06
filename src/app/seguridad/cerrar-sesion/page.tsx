@@ -1,18 +1,24 @@
-'use client';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+'use client'
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { signOut } from "@/auth";
 
-export default function CerrarSesion() {
-  const router = useRouter();
+export default function CerrarSesionPage() {
+   const router = useRouter();
 
-  useEffect(() => {
-    fetch('/api/logout')
-      .then(() => router.push('/'));
-  }, [router]);
+   useEffect(() => {
+      // Limpiar localStorage y sessionStorage
+      localStorage.clear();
+      sessionStorage.clear();
+      // Cerrar sesión con NextAuth
+      signOut();
+      // Redirigir a la landing
+      setTimeout(() => router.push("/"), 1000);
+   }, [router]);
 
-  return (
-    <div className="flex items-center justify-center h-screen">
-      <p className="text-gray-600 text-lg">Cerrando sesión...</p>
-    </div>
-  );
+   return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+         <span className="text-xl text-gray-700">Cerrando sesión...</span>
+      </div>
+   );
 }
