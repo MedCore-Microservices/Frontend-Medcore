@@ -11,9 +11,9 @@ import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
 import { registerUser } from "./actions";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import VerifyEmailModal from "../components/VerifyEmailModal"; // ← NUEVO IMPORT
+import VerifyEmailModal from "../components/VerifyEmailModal";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react"; // iconos de lucide-react
+import { Eye, EyeOff } from "lucide-react";
 
 // Esquema actualizado: incluye fullname y valida contraseñas
 const formSchema = z.object({
@@ -27,10 +27,15 @@ export default function RegistroPublicoUsuariosPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   const router = useRouter();
-  // ✅ NUEVOS ESTADOS PARA EL MODAL
+
+  // Estados para modal y usuario registrado
   const [showVerifyModal, setShowVerifyModal] = useState(false);
   const [registeredUser, setRegisteredUser] = useState<{email: string, fullname: string} | null>(null);
-  
+
+  // Estados para mostrar/ocultar contraseñas (mover hooks fuera del render prop)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,16 +60,15 @@ export default function RegistroPublicoUsuariosPage() {
       
       console.log("Respuesta del servidor:", response);
       
-      if (response.error) {
-        setMessage({ type: 'error', text: response.message });
+      if (response?.error) {
+        setMessage({ type: 'error', text: response.message ?? 'Error en el registro' });
       } else {
-        // ✅ MOSTRAR MODAL EN LUGAR DE MENSAJE DE ÉXITO
         setRegisteredUser({
           email: data.email,
           fullname: data.fullname
         });
         setShowVerifyModal(true);
-        // NO hacer form.reset() aquí, lo haremos después de verificación
+        // no reseteamos aquí, lo hacemos después de verificación exitosa
       }
     } catch (error) {
       setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
@@ -73,12 +77,11 @@ export default function RegistroPublicoUsuariosPage() {
     }
   };
 
-  // ✅ FUNCIÓN CUANDO LA VERIFICACIÓN ES EXITOSA
   const handleVerificationSuccess = () => {
     setMessage({ type: 'success', text: '¡Cuenta verificada exitosamente! Ya puedes iniciar sesión.' });
     form.reset(); // Limpiar formulario solo después de verificación exitosa
     setRegisteredUser(null);
-    setTimeout(() => router.push('/login'), 800);
+    setTimeout(() => router.push('/seguridad/identificacion-usuario'), 800);
   };
 
   return (
@@ -89,7 +92,6 @@ export default function RegistroPublicoUsuariosPage() {
           <CardDescription>Crea una nueva cuenta</CardDescription>
         </CardHeader>
         <CardContent>
-          {/* Mensaje de feedback */}
           {message && (
             <div className={`p-3 rounded mb-4 ${
               message.type === 'success' 
@@ -103,7 +105,7 @@ export default function RegistroPublicoUsuariosPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)} className="flex flex-col gap-4">
               
-              {/* Campo: Nombre completo */}
+              {/* Nombre completo */}
               <FormField
                 control={form.control}
                 name="fullname"
@@ -118,7 +120,7 @@ export default function RegistroPublicoUsuariosPage() {
                 )}
               />
 
-              {/* Campo: Email */}
+              {/* Email */}
               <FormField
                 control={form.control}
                 name="email"
@@ -133,40 +135,66 @@ export default function RegistroPublicoUsuariosPage() {
                 )}
               />
 
-              {/* Campo: Contraseña */}
-      <FormField
-      control={form.control}
-      name="password"
-      render={({ field }) => {
-      const [showPassword, setShowPassword] = useState(false);
+              {/* Contraseña */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contraseña</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••"
+                          className="pr-10"
+                        />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(prev => !prev)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-    return (
-      <FormItem>
-        <FormLabel>Contraseña</FormLabel>
-        <div className="relative">
-          <FormControl>
-            <Input
-              {...field}
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••"
-              className="pr-10"
-            />
-          </FormControl>
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
-        <FormMessage />
-      </FormItem>
-    );
-  }}
-/>
+              {/* Confirmación de contraseña (¡IMPORTANTE!) */}
+              <FormField
+                control={form.control}
+                name="passwordConfirm"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Confirmar contraseña</FormLabel>
+                    <div className="relative">
+                      <FormControl>
+                        <Input
+                          {...field}
+                          type={showPasswordConfirm ? "text" : "password"}
+                          placeholder="••••••"
+                          className="pr-10"
+                        />
+                      </FormControl>
+                      <button
+                        type="button"
+                        onClick={() => setShowPasswordConfirm(prev => !prev)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        aria-label={showPasswordConfirm ? "Ocultar confirmación" : "Mostrar confirmación"}
+                      >
+                        {showPasswordConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              {/* Botón de envío */}
               <Button 
                 type="submit" 
                 className="mt-2"
@@ -176,16 +204,17 @@ export default function RegistroPublicoUsuariosPage() {
               </Button>
             </form>
           </Form>
-      <button
-      onClick={() => router.back()}
-      className="text-sm underline mr-2"
-    >
-      Volver
-      </button>
+
+          <button
+            onClick={() => router.back()}
+            className="text-sm underline mr-2 mt-3"
+          >
+            Volver
+          </button>
         </CardContent>
       </Card>
 
-      {/* ✅ MODAL DE VERIFICACIÓN */}
+      {/* Modal de verificación */}
       {registeredUser && (
         <VerifyEmailModal
           isOpen={showVerifyModal}
@@ -195,6 +224,6 @@ export default function RegistroPublicoUsuariosPage() {
           onVerificationSuccess={handleVerificationSuccess}
         />
       )}
-  </main>
+    </main>
   );
 }
