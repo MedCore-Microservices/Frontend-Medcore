@@ -14,15 +14,17 @@ export default function Sidebar({ role = 'guest' }: Props) {
   // Si mobile está abierto, ocultamos el sidebar de escritorio (tal como pediste)
   if (mobileOpen) return null;
 
-  const items: NavItem[] = NAV_ITEMS[role] ?? NAV_ITEMS['guest'] ?? [];
+  const roleKey = role ?? 'guest';
+  const items: NavItem[] = NAV_ITEMS[roleKey] ?? NAV_ITEMS['guest'] ?? [];
 
   return (
     <aside
+      aria-hidden={mobileOpen}
       className={`bg-gray-800 text-white min-h-screen transition-all duration-200 ${
         desktopOpen ? 'w-64' : 'w-16'
-      } hidden md:block`}
+      } hidden md:block z-20`}
     >
-      <div className="flex items-center justify-between px-3 py-4 border-b border-gray-700">
+  <div className="flex items-center justify-between px-3 py-4 border-b border-gray-700">
         <div className="flex items-center gap-2">
           <div className="font-bold text-lg">{desktopOpen ? 'MedCore' : 'MC'}</div>
         </div>
@@ -36,7 +38,7 @@ export default function Sidebar({ role = 'guest' }: Props) {
         </button>
       </div>
 
-      <nav className="p-2 mt-3">
+  <nav className="p-2 mt-3">
         {items.map((it) => {
           const active = pathname?.startsWith(it.href);
           return (

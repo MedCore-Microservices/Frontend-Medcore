@@ -21,6 +21,7 @@ const formSchema = z.object({
 export default function IdentificacionUsuarioPage() {
    const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
    const [loading, setLoading] = useState(false);
+   const [showPassword, setShowPassword] = useState(false);
     const router = useRouter()
    
    const form = useForm<z.infer<typeof formSchema>>({
@@ -56,7 +57,7 @@ export default function IdentificacionUsuarioPage() {
       
             form.reset();
          }
-      } catch (error) {
+      } catch {
          setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
       } finally {
          setLoading(false);
@@ -64,8 +65,8 @@ export default function IdentificacionUsuarioPage() {
    };
 
    return (
-      <main className="flex justify-center items-center min-h-screen">
-         <Card className="w-[350px]">
+      <main className="flex justify-center items-center min-h-screen px-4">
+         <Card className="w-full max-w-md">
             <CardHeader>
                <CardTitle>Login</CardTitle>
                <CardDescription>Inicia sesión en tu cuenta</CardDescription>
@@ -103,38 +104,34 @@ export default function IdentificacionUsuarioPage() {
                         />
 
 <FormField
-      control={form.control}
-      name="password"
-      render={({ field }) => {
-      const [showPassword, setShowPassword] = useState(false);
-
-    return (
-      <FormItem>
-        <FormLabel>Contraseña</FormLabel>
-        <div className="relative">
-          <FormControl>
-            <Input
-              {...field}
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••"
-              className="pr-10"
-            />
-          </FormControl>
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-          >
-            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-          </button>
-        </div>
-        <FormMessage />
-      </FormItem>
-    );
-  }}
+         control={form.control}
+         name="password"
+         render={({ field }) => (
+         <FormItem>
+            <FormLabel>Contraseña</FormLabel>
+            <div className="relative">
+               <FormControl>
+                  <Input
+                     {...field}
+                     type={showPassword ? "text" : "password"}
+                     placeholder="••••••"
+                     className="pr-10"
+                  />
+               </FormControl>
+               <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+               >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+               </button>
+            </div>
+            <FormMessage />
+         </FormItem>
+   )}
 />
 
-                        <Button type="submit" disabled={loading}>
+                        <Button type="submit" disabled={loading} className="w-full">
                            {loading ? "Iniciando sesión..." : "Login"}
                         </Button>
                      </fieldset>

@@ -70,7 +70,7 @@ export default function RegistroPublicoUsuariosPage() {
         setShowVerifyModal(true);
         // no reseteamos aquí, lo hacemos después de verificación exitosa
       }
-    } catch (error) {
+    } catch {
       setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
     } finally {
       setLoading(false);
@@ -85,8 +85,8 @@ export default function RegistroPublicoUsuariosPage() {
   };
 
   return (
-    <main className="flex justify-center items-center min-h-screen">
-      <Card className="w-[350px]">
+    <main className="flex justify-center items-center min-h-screen px-4">
+      <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Registro</CardTitle>
           <CardDescription>Crea una nueva cuenta</CardDescription>
@@ -197,7 +197,7 @@ export default function RegistroPublicoUsuariosPage() {
 
               <Button 
                 type="submit" 
-                className="mt-2"
+                className="mt-2 w-full"
                 disabled={loading}
               >
                 {loading ? "Registrando..." : "Registrarse"}
@@ -220,7 +220,6 @@ export default function RegistroPublicoUsuariosPage() {
           isOpen={showVerifyModal}
           onClose={() => setShowVerifyModal(false)}
           userEmail={registeredUser.email}
-          userFullname={registeredUser.fullname}
           onVerificationSuccess={handleVerificationSuccess}
         />
       )}

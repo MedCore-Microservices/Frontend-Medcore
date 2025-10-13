@@ -1,21 +1,20 @@
 // app/ClientLayout.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
+import Link from 'next/link';
 
 export default function ClientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [menuAbierto, setMenuAbierto] = useState(false);
   const sesionActiva = false;
 
   return (
     <>
       <header className="bg-blue-600 text-white p-4 shadow-md">
         <nav className="container mx-auto flex justify-between items-center">
-          <a href="/" className="text-2xl font-bold">MedCore</a>
+          <Link href="/" className="text-2xl font-bold">MedCore</Link>
           <ul className="flex space-x-4">
             {!sesionActiva ? (
               <>
@@ -24,11 +23,13 @@ export default function ClientLayout({
                     Iniciar Sesión
                   </a>
                 </li>
+                {process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === 'true' && (
                 <li>
                   <a href="/seguridad/registro-publico-usuarios" className="hover:underline font-medium">
                     Registrarse
                   </a>
                 </li>
+                )}
               </>
             ) : (
               <>

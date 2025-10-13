@@ -10,16 +10,18 @@ type Props = { role?: string | null; inlineButton?: boolean };
 export default function MobileSidebar({ role = 'guest', inlineButton = false }: Props) {
   const pathname = usePathname();
   const { mobileOpen, toggleMobile } = useSidebarState();
-  const items: NavItem[] = NAV_ITEMS[role] ?? NAV_ITEMS['guest'] ?? [];
+  const roleKey = role ?? 'guest';
+  const items: NavItem[] = NAV_ITEMS[roleKey] ?? NAV_ITEMS['guest'] ?? [];
 
   // Si inlineButton=true, mostramos sólo el botón (sin posicionamiento fixed)
-  const button = (
+    const button = (
     <button
       onClick={toggleMobile}
+      aria-expanded={mobileOpen}
       aria-label={mobileOpen ? 'Cerrar menú' : 'Abrir menú'}
-      className="p-2 rounded-md bg-gray-800 text-white shadow-md focus:outline-none"
+      className="p-3 rounded-md bg-gray-800 text-white shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
     >
-      {mobileOpen ? '✕' : '☰'}
+      <span aria-hidden className="text-lg">{mobileOpen ? '✕' : '☰'}</span>
     </button>
   );
 
@@ -38,7 +40,9 @@ export default function MobileSidebar({ role = 'guest', inlineButton = false }: 
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/50" onClick={toggleMobile} aria-hidden />
           <aside
-            className="absolute left-0 top-0 bottom-0 w-72 bg-gray-800 text-white p-4 overflow-auto"
+            role="dialog"
+            aria-modal="true"
+            className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] sm:w-72 bg-gray-800 text-white p-4 overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">

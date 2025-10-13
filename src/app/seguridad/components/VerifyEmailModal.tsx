@@ -9,7 +9,6 @@ interface VerifyEmailModalProps {
   isOpen: boolean;
   onClose: () => void;
   userEmail: string;
-  userFullname: string;
   onVerificationSuccess: () => void;
 }
 
@@ -17,7 +16,6 @@ export default function VerifyEmailModal({
   isOpen, 
   onClose, 
   userEmail, 
-  userFullname,
   onVerificationSuccess 
 }: VerifyEmailModalProps) {
   const [code, setCode] = useState('');
@@ -51,7 +49,7 @@ export default function VerifyEmailModal({
         }, 1500);
       }
       
-    } catch (error: any) {
+    } catch {
       setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
     } finally {
       setLoading(false);
@@ -71,7 +69,7 @@ export default function VerifyEmailModal({
       } else {
         setMessage({ type: 'success', text: response.message });
       }
-    } catch (error: any) {
+    } catch {
       setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
     } finally {
       setResendLoading(false);
@@ -80,7 +78,7 @@ export default function VerifyEmailModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <Card className="w-[400px] mx-4">
+  <Card className="w-full max-w-md mx-4">
         <CardHeader>
           <CardTitle>Verifica tu email</CardTitle>
           <CardDescription>

@@ -1,29 +1,29 @@
 export default function DashboardPaciente() {
   return (
-    <div className="space-y-6">
-      <div className="bg-white shadow rounded-lg p-6">
+    <div className="space-y-6 px-3 sm:px-0">
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <h2 className="text-2xl font-bold text-gray-900">Mi Área de Paciente</h2>
         <p className="text-gray-600">Bienvenido a su portal de salud</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-blue-900">Próxima Cita</h3>
           <p className="text-xl font-bold text-blue-600">15 Mar 2024</p>
           <p className="text-sm text-blue-700">10:30 AM - Dr. García</p>
         </div>
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+  <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-green-900">Medicamentos Activos</h3>
           <p className="text-2xl font-bold text-green-600">3</p>
         </div>
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
+  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-purple-900">Resultados Pendientes</h3>
           <p className="text-2xl font-bold text-purple-600">1</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white shadow rounded-lg p-6">
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6 overflow-x-auto">
           <h3 className="text-lg font-semibold mb-4">Mis Próximas Citas</h3>
           <div className="space-y-3">
             <div className="p-3 border rounded">
@@ -39,7 +39,7 @@ export default function DashboardPaciente() {
           </div>
         </div>
         
-        <div className="bg-white shadow rounded-lg p-6">
+  <div className="bg-white shadow rounded-lg p-4 sm:p-6">
           <h3 className="text-lg font-semibold mb-4">Medicamentos Actuales</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center p-2 border rounded">

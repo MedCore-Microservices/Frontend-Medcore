@@ -37,6 +37,15 @@ export const registerUser = async ({
     };
   }
 
+  // Server-side guard: permiso para registro
+  // Si la variable está definida y es 'false', rechazamos el registro
+  if (process.env.ALLOW_REGISTRATION_SERVER_SIDE === 'false') {
+    return {
+      error: true,
+      message: 'Registro deshabilitado en este entorno'
+    };
+  }
+
   // 3. Si la validación pasa, llamamos al backend
   try {
      console.log('📡 Llamando a registerUsuario...'); // ← LOG
@@ -50,11 +59,12 @@ export const registerUser = async ({
       requiresVerification: true // ← NUEVO: indica que necesita verificación
 
     };
-  } catch (error: any) {
+  } catch (error) {
      console.log('❌ Error en server action:', error); // ← LOG
+    const errMsg = error instanceof Error ? error.message : String(error);
     return {
       error: true,
-      message: error.message || "Error al registrar el usuario en el servidor"
+      message: errMsg || "Error al registrar el usuario en el servidor"
     };
   }
 };
@@ -69,10 +79,11 @@ export const verifyEmail = async (email: string, code: string) => {
       message: result.message,
       data: result.user
     };
-  } catch (error: any) {
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
     return {
       error: true,
-      message: error.message || "Error al verificar el código"
+      message: errMsg || "Error al verificar el código"
     };
   }
 };
@@ -87,10 +98,11 @@ export const resendVerification = async (email: string) => {
       success: true,
       message: result.message
     };
-  } catch (error: any) {
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
     return {
       error: true,
-      message: error.message || "Error al reenviar el código"
+      message: errMsg || "Error al reenviar el código"
     };
   }
 };
