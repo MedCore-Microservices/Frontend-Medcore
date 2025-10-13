@@ -1,4 +1,3 @@
-// app/api/auth/[...nextauth]/route.ts (o donde tengas tu configuración)
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { registerUsuario, loginUser } from "@/app/servicios/seguridad.service";
@@ -6,6 +5,18 @@ import { registerUsuario, loginUser } from "@/app/servicios/seguridad.service";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+  cookies: {
+    sessionToken: {
+      name: `authjs.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1800, // 30 minutos en segundos
+      },
+    },
+  },
   providers: [
     Credentials({
       name: "Credenciales",
@@ -19,13 +30,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         try {
           let usuario;
-          
+
           if (credentials.fullname) {
             // REGISTRO
             usuario = await registerUsuario(
               String(credentials.email),
               String(credentials.fullname),
-              String(credentials.password),
+              String(credentials.password)
             );
           } else {
             // LOGIN
@@ -39,10 +50,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           if (!usuario || !usuario.id) return null;
 
           return {
-            id: String(usuario.id), 
-            email: usuario.email,  
+            id: String(usuario.id),
+            email: usuario.email,
             name: usuario.name || usuario.email,
-            role: usuario.role || "paciente"
+            role: usuario.role || "paciente",
           };
         } catch (error) {
           console.error("Error en authorize:", error);
@@ -51,6 +62,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  // CONFIGURACIÓN AÑADIDA PARA LA COOKIE DE SESIÓN
+  // Esto asegura que la cookie de sesión se elimine cuando se cierre el navegador.
   callbacks: {
     async session({ session, token }) {
       if (token && session.user) {
