@@ -29,14 +29,14 @@ export default function HomePage() {
             >
               Iniciar Sesión
             </Link>
-            {/* {process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === 'true' && ( */}
+            {/* {process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === 'true' && (
             <Link
               href="/seguridad/registro-publico-usuarios"
               className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
             >
               Registrarse
             </Link>
-            {/* )} */}
+            )} */}
           </div>
         </div>
       </div>
@@ -100,6 +100,17 @@ export default function HomePage() {
             <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
               <h3 className="text-xl font-bold text-gray-900 mb-3">{service.title}</h3>
               <p className="text-gray-600">{service.desc}</p>
+              {/* Botón pequeño debajo del card 'Inventario Médico' (índice 3) */}
+              {i === 3 && (
+                <div className="mt-4">
+                  <Link
+                    href="/seguridad/registro-publico-usuarios"
+                    className="inline-block px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm shadow-sm"
+                  >
+                    Registrarse
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </div>
