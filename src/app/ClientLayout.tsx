@@ -23,13 +23,13 @@ export default function ClientLayout({
                     Iniciar Sesión
                   </a>
                 </li>
-                {process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === 'true' && (
+                {/* {process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === 'true' && (} */}
                 <li>
                   <a href="/seguridad/registro-publico-usuarios" className="hover:underline font-medium">
                     Registrarse
                   </a>
                 </li>
-                )}
+                {/* )} */}
               </>
             ) : (
               <>

@@ -4,7 +4,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       {/* Hero Section */}
-      <div 
+      <div
         className="relative h-screen flex items-center justify-center"
         style={{
           backgroundImage: "url('/images/medical-hero.jpg')",
@@ -19,25 +19,25 @@ export default function HomePage() {
             Bienvenido a <span className="text-blue-300">MedCore</span>
           </h1>
           <p className="text-xl md:text-2xl text-blue-100 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Sistema Integral de Gestión Hospitalaria. Optimice la atención médica, 
+            Sistema Integral de Gestión Hospitalaria. Optimice la atención médica,
             la gestión de pacientes y los flujos clínicos con nuestra plataforma segura y moderna.
           </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-  <Link 
-    href="/seguridad/identificacion-usuario"
-    className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
-  >
-    Iniciar Sesión
-  </Link>
-  {process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === 'true' && (
-    <Link 
-      href="/seguridad/registro-publico-usuarios"
-      className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
-    >
-      Registrarse
-    </Link>
-  )}
-</div>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Link
+              href="/seguridad/identificacion-usuario"
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
+            >
+              Iniciar Sesión
+            </Link>
+            {/* {process.env.NEXT_PUBLIC_ALLOW_REGISTRATION === 'true' && ( */}
+            <Link
+              href="/seguridad/registro-publico-usuarios"
+              className="px-8 py-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl text-lg"
+            >
+              Registrarse
+            </Link>
+            {/* )} */}
+          </div>
         </div>
       </div>
 
@@ -52,8 +52,8 @@ export default function HomePage() {
               Tecnología al servicio de la salud
             </h2>
             <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              Desarrollado por profesionales médicos y expertos en TI, MedCore ofrece una solución 
-              integral para clínicas, hospitales y centros de atención primaria. 
+              Desarrollado por profesionales médicos y expertos en TI, MedCore ofrece una solución
+              integral para clínicas, hospitales y centros de atención primaria.
               Seguridad, eficiencia y experiencia de usuario en un solo sistema.
             </p>
             <div className="grid grid-cols-2 gap-8">
@@ -67,7 +67,7 @@ export default function HomePage() {
               </div>
             </div>
           </div>
-          <div 
+          <div
             className="rounded-2xl h-96 bg-cover bg-center"
             style={{
               backgroundImage: "url('/images/medical-equipment.jpg')",
@@ -112,7 +112,7 @@ export default function HomePage() {
             <div className="md:col-span-2">
               <h3 className="text-2xl font-bold text-blue-400 mb-4">MedCore</h3>
               <p className="text-gray-300 mb-4 max-w-lg">
-                Sistema integral de gestión hospitalaria diseñado para optimizar la atención médica 
+                Sistema integral de gestión hospitalaria diseñado para optimizar la atención médica
                 y mejorar la eficiencia operativa en clínicas y hospitales.
               </p>
               <div className="flex space-x-4">

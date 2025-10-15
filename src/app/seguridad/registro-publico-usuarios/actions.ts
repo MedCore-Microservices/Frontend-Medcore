@@ -39,12 +39,12 @@ export const registerUser = async ({
 
   // Server-side guard: permiso para registro
   // Si la variable está definida y es 'false', rechazamos el registro
-  if (process.env.ALLOW_REGISTRATION_SERVER_SIDE === 'false') {
+  { /*if (process.env.ALLOW_REGISTRATION_SERVER_SIDE === 'false') {
     return {
       error: true,
       message: 'Registro deshabilitado en este entorno'
     };
-  }
+  }*/ }
 
   // 3. Si la validación pasa, llamamos al backend
   try {
