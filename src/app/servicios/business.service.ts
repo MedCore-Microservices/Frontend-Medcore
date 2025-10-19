@@ -50,35 +50,30 @@ export async function searchPatientsAdvanced(
 }
 
 // Obtener paciente por ID
-export async function getPatientById(id: string) {
-  console.log("👤 Obteniendo paciente con ID:", id);
-  
+export async function getPatientByIdClient(id: string) {
+  if (typeof window === 'undefined') {
+    throw new Error("Solo se puede usar en el cliente");
+  }
+
   const token = localStorage.getItem('auth_token');
-  
-  const res = await fetch(`${BUSINESS_URL}/api/patients/${id}`, {
-    method: "GET",
-    headers: { 
+  if (!token) {
+    throw new Error("Token requerido");
+  }
+
+  const res = await fetch(`http://localhost:3002/api/patients/${id}`, {
+    headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
-    },
+    }
   });
 
   if (!res.ok) {
-    let errorMessage = "Error obteniendo paciente";
-    try {
-      const errorData = await res.json();
-      if (typeof errorData.message === 'string') {
-        errorMessage = errorData.message;
-      }
-    } catch (e) {
-      errorMessage = res.statusText || "Error de conexión";
-    }
-    throw new Error(errorMessage);
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Error al cargar paciente");
   }
 
-  return await res.json();
+  return res.json();
 }
-
 // Verificar salud del servicio de negocio
 export async function checkBusinessHealth() {
   const res = await fetch(`${BUSINESS_URL}/health`, {

@@ -32,38 +32,35 @@ export default function IdentificacionUsuarioPage() {
       }
    });
 
-   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-      setLoading(true);
-      setMessage(null);
-      
-      try {
-         const response = await loginWithCredentials({
-            email: data.email,
-            password: data.password
-         });
+ const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+  setLoading(true);
+  setMessage(null);
+  
+  try {
+    const response = await loginWithCredentials({
+      email: data.email,
+      password: data.password
+    });
 
-         console.log("Respuesta del login:", response);
-         
-         if (response.error) {
-            // MOSTRAR MENSAJE DE ERROR (incluye "verifica tu email")
-            setMessage({ type: 'error', text: response.message });
-         } else {
-            setMessage({ type: 'success', text: '¡Login exitoso Redigiriendo!' });
-
-               setTimeout(() => {
-               router.push("/dashboard");
-               router.refresh(); // Forzar actualización
-            }, 1000);
-      
-            form.reset();
-         }
-      } catch {
-         setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
-      } finally {
-         setLoading(false);
+    if (response.error) {
+      setMessage({ type: 'error', text: response.message });
+    } else {
+      // GUARDAR EL TOKEN EN LOCALSTORAGE
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('auth_token', response.accessToken);
       }
-   };
 
+      setMessage({ type: 'success', text: '¡Login exitoso! Redirigiendo...' });
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
+    }
+  } catch {
+    setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
+  } finally {
+    setLoading(false);
+  }
+};
    return (
       <main className="flex justify-center items-center min-h-screen px-4">
          <Card className="w-full max-w-md">

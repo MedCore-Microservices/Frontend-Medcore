@@ -11,7 +11,8 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
   medico: [
     { label: "Inicio", href: "/dashboard" },
     { label: "Mi Agenda", href: "/dashboard/medico/agenda" },
-    { label: "Pacientes", href: "/dashboard/medico/pacientes" },
+    { label: "Pacientes", href: "/dashboard/pacientes" },
+     { label: "Historia Clínica", href: "/dashboard/historiamedica/new" },
   ],
   enfermera: [
     { label: "Inicio", href: "/dashboard" },

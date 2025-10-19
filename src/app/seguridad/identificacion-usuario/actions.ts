@@ -3,60 +3,42 @@
 import { passwordSchema } from "@/validation/passwordSchema"
 import z from "zod"
 import { signIn } from "@/auth";
+import { loginUser } from "@/app/servicios/seguridad.service";
 
 export const loginWithCredentials = async ({
-    email,
-    password
+  email,
+  password
 }: {
-    email: string,
-    password: string
+  email: string;
+  password: string;
 }) => {
-    const loginSchema = z.object({
-        email: z.string().email(),
-        password: passwordSchema
-    })
+  const loginSchema = z.object({
+    email: z.string().email(),
+    password: passwordSchema
+  });
+
+  const validation = loginSchema.safeParse({ email, password });
+  if (!validation.success) {
+    return {
+      error: true,
+      message: "Credenciales inválidas"
+    };
+  }
+
+  try {
+    // Llama directamente a tu servicio de auth (no usa NextAuth internamente)
+    const response = await loginUser(email, password);
     
-    const loginValidation = loginSchema.safeParse({
-        email,
-        password
-    })
-    
-    if (!loginValidation.success) {
-        return {
-            error: true,
-            message: loginValidation.error.issues[0]?.message ?? "Error de validación"
-        }
-    }
-
-    try {
-        console.log('📡 Intentando login con NextAuth para:', email);
-        
- 
-        const result = await signIn("credentials", {
-            email,
-            password,
-            redirect: false
-        });
-
-        if (result?.error) {
-            return {
-                error: true,
-                message: "Credenciales inválidas"
-            };
-        }
-
-        return {
-            success: true,
-            message: "Login exitoso"
-        };
-    } catch (error: any) {
-        const errorMessage = error.message.includes('verifica tu email') 
-            ? "Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada."
-            : error.message || "Error en el login";
-            
-        return {
-            error: true,
-            message: errorMessage
-        };
-    }
-}
+    return {
+      success: true,
+      message: "Login exitoso",
+      accessToken: response.accessToken, // ← esto es clave
+      user: response.user
+    };
+  } catch (error: any) {
+    return {
+      error: true,
+      message: error.message || "Error en el login"
+    };
+  }
+};

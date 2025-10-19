@@ -1,9 +1,8 @@
-// URL FIJA para desarrollo - ELIMINA toda la lógica compleja
-const BACKEND_URL = "http://localhost:3001";
-
+const BACKEND_URL ="http://localhost:3001";
 export async function registerUsuario(email: string, password: string, fullname: string) {
   console.log("📡 Llamando al backend con:", { email, fullname }); 
-  console.log("🔗 URL:", `${BACKEND_URL}/api/auth/seguridad/registro-publico-usuarios`);
+  console.log("🔗 URL del backend:", BACKEND_URL); // ← Agrega esto para debug
+  console.log("🌍 NODE_ENV:", process.env.NODE_ENV);
   
   const res = await fetch(`${BACKEND_URL}/api/auth/seguridad/registro-publico-usuarios`, {
     method: "POST",
@@ -15,6 +14,7 @@ export async function registerUsuario(email: string, password: string, fullname:
     let errorMessage = "Credenciales inválidas";
     try {
       const errorData = await res.json();
+      
       if (typeof errorData.message === 'string') {
         errorMessage = errorData.message;
       }
@@ -31,30 +31,6 @@ export async function registerUsuario(email: string, password: string, fullname:
   }
 
   return data.user;
-}
-
-export async function loginUser(email: string, password: string) {
-  console.log("📡 Intentando login para:", email);
-  console.log("🔗 URL:", `${BACKEND_URL}/api/auth/login`);
-  
-  const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-
-  console.log("📊 Status:", res.status, "OK?", res.ok);
-
-  // ✅ PRIMERO parsear SIEMPRE la respuesta
-  const data = await res.json();
-  console.log("📊 Data del servidor:", data);
-
-  if (!res.ok) {
-    throw new Error(data.message || "Error en el login");
-  }
-
-  console.log("✅ Login exitoso");
-  return data;
 }
 
 export async function validarCodigo2FA(usuarioId: string, codigo: string) {
@@ -80,6 +56,7 @@ export async function validarCodigo2FA(usuarioId: string, codigo: string) {
   return res.json();
 }
 
+// Verificar código de email
 export async function verifyEmailCode(email: string, code: string) {
   const res = await fetch(`${BACKEND_URL}/api/auth/verify-email`, {
     method: "POST",
@@ -95,6 +72,7 @@ export async function verifyEmailCode(email: string, code: string) {
   return await res.json();
 }
 
+// Reenviar código de verificación
 export async function resendVerificationCode(email: string) {
   const res = await fetch(`${BACKEND_URL}/api/auth/resend-verification`, {
     method: "POST",
@@ -109,6 +87,45 @@ export async function resendVerificationCode(email: string) {
 
   return await res.json();
 }
+
+
+export async function loginUser(email: string, password: string) {
+  console.log("📡 Intentando login para:", email);
+  
+  const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  if (!res.ok) {
+    let errorMessage = "Error en el login";
+    try {
+      const errorData = await res.json();
+      if (typeof errorData.message === 'string') {
+        errorMessage = errorData.message;
+      }
+    } catch (e) {
+      errorMessage = res.statusText || "Error de conexión";
+    }
+    throw new Error(errorMessage);
+  }
+
+
+  const data = await res.json();
+  
+  // Asegurar que el usuario tenga un rol
+  if (data.user) {
+    // Si el backend no envía rol, lo determinamos por email
+    if (!data.user.role) {
+      data.user.role = determinarRolPorEmail(email);
+    }
+  }
+  
+  return data;
+}
+
+
 
 function determinarRolPorEmail(email: string): string {
   if (email.includes('admin') || email.includes('administrador')) return 'admin';
