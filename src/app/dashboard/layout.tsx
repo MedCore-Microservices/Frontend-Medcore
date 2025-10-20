@@ -11,7 +11,7 @@ import { SidebarStateProvider } from "./components/SidebarStateProvider";
 export default async function DashboardLayout({ children }: { children: React.ReactNode; }) {
   const session = await auth();
 
-  if (!session) redirect('/seguridad/identificacion-usuarios');
+  if (!session) redirect('/seguridad/identificacion-usuario');
 
   const rawRole = session.user?.role ?? 'guest';
   const userRole = normalizarRol(rawRole);

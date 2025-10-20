@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
+import { useSession } from 'next-auth/react'; // ✅
 import { getPatientByIdClient } from '@/app/servicios/business.service';
 import DiagnosticCard from '@/app/dashboard/components/DiagnosticCard';
 import DocumentManager from '@/app/dashboard/components/DocumentManager';
@@ -11,15 +12,33 @@ interface PageProps {
 
 export default function PatientHistoryPage({ params }: PageProps) {
   const { patientId } = use(params);
+  const { data: session, status } = useSession(); //  Obtiene la sesión
 
   const [patient, setPatient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  //  Verificación de acceso
   useEffect(() => {
+    if (status === 'loading') return;
+
+    const user = session?.user;
+    if (!user) {
+      setError('No autorizado');
+      setLoading(false);
+      return;
+    }
+
+    // Si es paciente y el ID no coincide, denegar acceso
+    if (user.role === 'PACIENTE' && String(user.id) !== patientId) {
+      setError('No tienes permiso para ver esta historia clínica');
+      setLoading(false);
+      return;
+    }
+
+    // Si pasa las validaciones, cargar los datos
     const loadPatient = async () => {
       try {
-        setLoading(true);
         const data = await getPatientByIdClient(patientId);
         setPatient(data.patient);
       } catch (err: any) {
@@ -30,16 +49,16 @@ export default function PatientHistoryPage({ params }: PageProps) {
     };
 
     loadPatient();
-  }, [patientId]);
+  }, [patientId, session, status]);
 
-  if (loading) {
+  if (loading || status === 'loading') {
     return <div className="p-6"><h1 className="text-2xl">Cargando...</h1></div>;
   }
 
   if (error) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl text-red-600">Error</h1>
+        <h1 className="text-2xl text-red-600">Acceso denegado</h1>
         <p className="text-gray-600">{error}</p>
       </div>
     );

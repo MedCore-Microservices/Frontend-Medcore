@@ -1,7 +1,6 @@
 'use client'
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "@/auth";
 
 export default function CerrarSesionPage() {
    const router = useRouter();
@@ -10,10 +9,17 @@ export default function CerrarSesionPage() {
       // Limpiar localStorage y sessionStorage
       localStorage.clear();
       sessionStorage.clear();
-      // Cerrar sesión con NextAuth
-      signOut();
-      // Redirigir a la landing
-      setTimeout(() => router.push("/"), 1000);
+      
+      // Cerrar sesión con NextAuth usando la ruta API
+      fetch('/api/auth/signout', {
+         method: 'POST',
+         headers: {
+            'Content-Type': 'application/json'
+         }
+      }).then(() => {
+         // Redirigir a la landing
+         router.push("/");
+      });
    }, [router]);
 
    return (

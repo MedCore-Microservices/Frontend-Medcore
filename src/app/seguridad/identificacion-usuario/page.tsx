@@ -45,11 +45,11 @@ export default function IdentificacionUsuarioPage() {
     if (response.error) {
       setMessage({ type: 'error', text: response.message });
     } else {
-      // GUARDAR EL TOKEN EN LOCALSTORAGE
-      if (typeof window !== 'undefined') {
+      // Guardar el token en localStorage para las peticiones a microservicios
+      if (response.accessToken && typeof window !== 'undefined') {
         localStorage.setItem('auth_token', response.accessToken);
       }
-
+      
       setMessage({ type: 'success', text: '¡Login exitoso! Redirigiendo...' });
       setTimeout(() => {
         router.push("/dashboard");
