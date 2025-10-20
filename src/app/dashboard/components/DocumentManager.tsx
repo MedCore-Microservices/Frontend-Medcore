@@ -1,4 +1,4 @@
-
+import { downloadDocument } from '@/app/servicios/business.service';
 export default function DocumentManager({
   documents,
 }: {
@@ -34,10 +34,16 @@ export default function DocumentManager({
             </p>
           </div>
           <button
-            onClick={() => alert(`Descargar documento ${doc.id}`)} // Más adelante conectamos con API
+            onClick={async () => {
+  try {
+    await downloadDocument(doc.id);
+  } catch (error: any) {
+    alert('Error al descargar: ' + (error.message || 'Desconocido'));
+  }
+}} 
             className="text-blue-600 hover:text-blue-800 font-medium"
           >
-            Descargar
+            Descargando
           </button>
         </div>
       ))}
