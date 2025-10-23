@@ -48,7 +48,6 @@ export default function DashboardMedico() {
           Nueva Consulta
         </a>
       </div>
-
       {/* Bloque: Acceso a Pacientes */}
       <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <h3 className="text-lg font-semibold mb-4">Pacientes</h3>
@@ -59,6 +58,27 @@ export default function DashboardMedico() {
         >
           Ir a Pacientes
         </Link>
+      </div>
+
+      {/*  NUEVO BLOQUE: Consultas Médicas */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-semibold mb-4">Consultas Médicas</h3>
+        <ul className="space-y-3">
+          {([
+            { id: 123, title: 'Consulta 1' },
+            { id: 456, title: 'Consulta 2' },
+          ]).map((consultation) => (
+            <li key={consultation.id} className="flex justify-between items-center p-3 border rounded">
+              <span>{consultation.title}</span>
+              <a
+                href={`/dashboard/historiamedica/${consultation.id}/edit`}
+                className="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition"
+              >
+                Editar
+              </a>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );

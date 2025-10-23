@@ -10,6 +10,8 @@ export async function registerUsuario(email: string, password: string, fullname:
     body: JSON.stringify({ email, password, fullname }),
   });
 
+  console.log("📥 Respuesta completa del backend:", res);
+  
   if (!res.ok) {
     let errorMessage = "Credenciales inválidas";
     try {
@@ -25,6 +27,7 @@ export async function registerUsuario(email: string, password: string, fullname:
   }
 
   const data = await res.json();
+  console.log("📤 Datos procesados:", data);
 
   if (!data.user) {
     throw new Error("Respuesta inválida del servidor: usuario no encontrado");
