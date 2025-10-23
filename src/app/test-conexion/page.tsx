@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { loginUser } from '../servicios/seguridad.service';
-import { searchPatientsAdvanced } from '../servicios/business.service';
+import { searchPatients } from '../servicios/patients.service';
 
 export default function TestConexion() {
   const [resultado, setResultado] = useState('');
@@ -26,7 +26,7 @@ export default function TestConexion() {
       
   // 2. Buscar pacientes
   setResultado(prev => prev + '🔍 Buscando pacientes...\n');
-  const pacientes = await searchPatientsAdvanced({ search: 'Fractura', page: 1, limit: 10 });
+  const pacientes = await searchPatients({ search: 'Fractura', page: 1, limit: 10 });
       
   setResultado(prev => prev + `✅ ${pacientes.patients.length} pacientes encontrados\n`);
   setResultado(prev => prev + `📊 Paginación: página ${pacientes.pagination.page} de ${pacientes.pagination.totalPages}\n`);

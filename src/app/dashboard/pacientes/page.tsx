@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { searchPatientsAdvanced } from '@/app/servicios/business.service';
+import { searchPatients } from '@/app/servicios/patients.service';
+import Link from 'next/link';
 
 type Patient = {
   id: string | number;
@@ -20,7 +21,7 @@ export default function PatientsPage() {
       try {
         setLoading(true);
   // Puedes pasar filtros si los necesitas
-  const data = await searchPatientsAdvanced({ page: 1, limit: 20 });
+  const data = await searchPatients({ page: 1, limit: 20 });
   setPatients(data.patients || []);
       } catch (err) {
         const msg = (err as unknown as { message?: string })?.message || 'Error al cargar pacientes';
@@ -46,12 +47,7 @@ export default function PatientsPage() {
               <h3 className="font-medium">{patient.fullname}</h3>
               <p className="text-sm text-gray-600">ID: {patient.identificationNumber}</p>
             </div>
-            <a
-              href={`/dashboard/historiamedica/patient/${patient.id}`}
-              className="text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Ver Historia Clínica
-            </a>
+            <Link href={`/dashboard/historiamedica/patient/${patient.id}`} className="text-blue-600 hover:text-blue-800 font-medium">Ver Historia Clínica</Link>
           </div>
         ))}
       </div>

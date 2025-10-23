@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import PatientsTable from './components/PatientsTable';
 import PatientsFilters from './components/PatientsFilters';
-import { searchPatientsAdvanced } from '@/app/servicios/business.service';
+import { searchPatients } from '@/app/servicios/patients.service';
 
 type Patient = {
     id: number;
@@ -28,30 +29,31 @@ export default function PatientsListPage() {
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
     const [total, setTotal] = useState(0);
+        const [totalPages, setTotalPages] = useState<number>(1);
+        const [hasNext, setHasNext] = useState<boolean>(false);
+        const [hasPrev, setHasPrev] = useState<boolean>(false);
     const [filters, setFilters] = useState<Filters>({});
 
-        const load = useCallback(async (p = 1) => {
+        const load = useCallback(async (p = 1, appliedFilters?: Filters) => {
         try {
             setLoading(true);
-                // send only supported filters to backend (dateFrom/dateTo, diagnostic/search, page, limit)
-                const data = await searchPatientsAdvanced({
-                    dateFrom: filters.dateFrom,
-                    dateTo: filters.dateTo,
+                const useFilters = appliedFilters ?? filters;
+                const data = await searchPatients({
+                    dateFrom: useFilters.dateFrom,
+                    dateTo: useFilters.dateTo,
+                    gender: useFilters.gender,
+                    minAge: useFilters.minAge ? Number(useFilters.minAge) : undefined,
+                    maxAge: useFilters.maxAge ? Number(useFilters.maxAge) : undefined,
                     page: p,
-                    limit: limit,
-                });
-                const fetched: Patient[] = data.patients || [];
-
-                // apply client-side filters for gender and age (backend does not support gender/age params)
-                const filtered = fetched.filter((pt: Patient) => {
-                    if (filters.gender && pt.gender !== filters.gender) return false;
-                    if (filters.minAge && typeof pt.age === 'number' && pt.age < parseInt(filters.minAge)) return false;
-                    if (filters.maxAge && typeof pt.age === 'number' && pt.age > parseInt(filters.maxAge)) return false;
-                    return true;
+                    limit: limit
                 });
 
-                setPatients(filtered);
-                setTotal(data.pagination?.total ?? filtered.length);
+            const fetched: Patient[] = data.patients || [];
+            setPatients(fetched);
+            setTotal(data.pagination?.total ?? fetched.length);
+            setTotalPages(data.pagination?.totalPages ?? 1);
+            setHasNext(Boolean(data.pagination?.hasNext));
+            setHasPrev(Boolean(data.pagination?.hasPrev));
         } catch (err) {
             console.error(err);
         } finally {
@@ -64,21 +66,22 @@ export default function PatientsListPage() {
     const onApplyFilters = (f: Filters) => {
         setFilters(f);
         setPage(1);
-        load(1);
+        // pass the new filters directly to avoid stale closure
+        load(1, f);
     };
 
     const onClearFilters = () => {
         const empty: Filters = {};
         setFilters(empty);
         setPage(1);
-        load(1);
+        load(1, empty);
     };
 
     return (
         <div className="p-6">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold">Pacientes</h1>
-                <a href="/patients/new" className="px-4 py-2 bg-blue-600 text-white rounded">Nuevo Paciente</a>
+                <Link href="/patients/newPatient" className="px-4 py-2 bg-blue-600 text-white rounded">Nuevo Paciente</Link>
             </div>
 
             <PatientsFilters onApply={onApplyFilters} onClear={onClearFilters} initial={filters} />
@@ -87,14 +90,25 @@ export default function PatientsListPage() {
                 <div>Cargando...</div>
             ) : (
                 <>
-                    <PatientsTable patients={patients} />
+                    {/* Build a compact query string to preserve filters and page when navigating */}
+                    {(() => {
+                        const params = new URLSearchParams();
+                        if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
+                        if (filters.dateTo) params.append('dateTo', filters.dateTo);
+                        if (filters.gender) params.append('gender', filters.gender);
+                        if (filters.minAge) params.append('minAge', String(filters.minAge));
+                        if (filters.maxAge) params.append('maxAge', String(filters.maxAge));
+                        if (page) params.append('page', String(page));
+                        const q = params.toString();
+                        return <PatientsTable patients={patients} query={q} />;
+                    })()}
 
                     <div className="mt-4 flex items-center justify-between">
-                        <div>Mostrando {patients.length} de {total}</div>
-                        <div className="space-x-2">
-                            <button onClick={() => { if (page > 1) { setPage(page - 1); load(page - 1); } }} className="px-3 py-1 bg-gray-200 rounded">Anterior</button>
-                            <button onClick={() => { setPage(page + 1); load(page + 1); }} className="px-3 py-1 bg-gray-200 rounded">Siguiente</button>
-                        </div>
+                        <div>Mostrando {patients.length} de {total} — Página {page} / {totalPages}</div>
+                            <div className="space-x-2">
+                                <button disabled={!hasPrev} onClick={() => { if (page > 1) { const np = page - 1; setPage(np); load(np); } }} className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Anterior</button>
+                                <button disabled={!hasNext} onClick={() => { const np = page + 1; setPage(np); load(np); }} className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50">Siguiente</button>
+                            </div>
                     </div>
                 </>
             )}

@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import Link from 'next/link';
 
 type Patient = {
     id: number;
@@ -11,7 +12,7 @@ type Patient = {
     createdAt?: string;
 };
 
-export default function PatientsTable({ patients }: { patients: Patient[] }) {
+export default function PatientsTable({ patients, query }: { patients: Patient[], query?: string }) {
     if (!patients || patients.length === 0) {
         return <div className="p-4 bg-yellow-50 rounded">No se encontraron pacientes.</div>;
     }
@@ -38,8 +39,8 @@ export default function PatientsTable({ patients }: { patients: Patient[] }) {
                             <td className="px-4 py-2 text-sm">{p.age ?? '-'}</td>
                             <td className="px-4 py-2 text-sm">{p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '-'}</td>
                             <td className="px-4 py-2 text-sm text-right">
-                                <a href={`/patients/${p.id}`} className="text-blue-600 hover:underline mr-2">Ver</a>
-                                <a href={`/patients/${p.id}/edit`} className="text-yellow-600 hover:underline">Editar</a>
+                                <Link href={`/patients/getPatient?id=${p.id}${query ? `&${query}` : ''}`} className="text-blue-600 hover:underline mr-2">Ver</Link>
+                                <Link href={`/patients/editPatient?id=${p.id}${query ? `&${query}` : ''}`} className="text-yellow-600 hover:underline">Editar</Link>
                             </td>
                         </tr>
                     ))}

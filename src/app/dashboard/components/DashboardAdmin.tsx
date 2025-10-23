@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function DashboardAdmin() {
   return (
     <div className="space-y-6 px-3 sm:px-0">
@@ -34,6 +36,12 @@ export default function DashboardAdmin() {
           <h3 className="text-lg font-semibold mb-4">Reportes del Sistema</h3>
           <p className="text-gray-600">Generar reportes y estadísticas</p>
         </div>
+      </div>
+      {/* Acceso a Pacientes para administradores */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6 mt-4">
+        <h3 className="text-lg font-semibold mb-4">Pacientes</h3>
+        <p className="text-gray-600 mb-4">Explorar y administrar pacientes</p>
+        <Link href="/patients" className="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Ir a Pacientes</Link>
       </div>
     </div>
   );

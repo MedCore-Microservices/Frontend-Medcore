@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function DashboardEnfermero() {
   return (
     <div className="space-y-6 px-3 sm:px-0">
@@ -53,6 +55,12 @@ export default function DashboardEnfermero() {
             </div>
           </div>
         </div>
+      </div>
+      {/* Acceso rápido a Pacientes */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-semibold mb-4">Pacientes</h3>
+        <p className="text-gray-600 mb-4">Accede a la lista de pacientes asignados</p>
+        <Link href="/patients" className="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Ver Pacientes</Link>
       </div>
     </div>
   );

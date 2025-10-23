@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type Filters = {
     dateFrom?: string;
@@ -16,6 +16,15 @@ export default function PatientsFilters({ onApply, onClear, initial }: { onApply
     const [gender, setGender] = useState(initial.gender || '');
     const [minAge, setMinAge] = useState(initial.minAge || '');
     const [maxAge, setMaxAge] = useState(initial.maxAge || '');
+
+    // Keep local inputs in sync when parent `initial` changes (e.g. when clearing filters)
+    useEffect(() => {
+        setDateFrom(initial.dateFrom || '');
+        setDateTo(initial.dateTo || '');
+        setGender(initial.gender || '');
+        setMinAge(initial.minAge || '');
+        setMaxAge(initial.maxAge || '');
+    }, [initial]);
 
     return (
         <div className="bg-white p-4 rounded shadow mb-4">
@@ -46,7 +55,14 @@ export default function PatientsFilters({ onApply, onClear, initial }: { onApply
                 </div>
 
                 <div className="flex items-end gap-2">
-                    <button onClick={() => onApply({ dateFrom, dateTo, gender, minAge, maxAge })} className="px-4 py-2 bg-blue-600 text-white rounded">Aplicar</button>
+                    {Number(minAge) > 0 && Number(maxAge) > 0 && Number(minAge) > Number(maxAge) && (
+                        <div className="text-red-600 text-sm">La edad mínima no puede ser mayor a la máxima</div>
+                    )}
+                    <button
+                        onClick={() => onApply({ dateFrom, dateTo, gender, minAge: minAge !== '' ? String(Number(minAge)) : undefined, maxAge: maxAge !== '' ? String(Number(maxAge)) : undefined })}
+                        className="px-4 py-2 bg-blue-600 text-white rounded"
+                        disabled={Number(minAge) > 0 && Number(maxAge) > 0 && Number(minAge) > Number(maxAge)}
+                    >Aplicar</button>
                     <button onClick={() => { setDateFrom(''); setDateTo(''); setGender(''); setMinAge(''); setMaxAge(''); onClear(); }} className="px-4 py-2 bg-gray-200 rounded">Limpiar</button>
                 </div>
             </div>
