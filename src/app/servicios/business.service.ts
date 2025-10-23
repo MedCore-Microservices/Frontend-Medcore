@@ -190,3 +190,50 @@ export async function createDiagnostic(
 
   return res.json();
 }
+
+// Obtener consulta médica por ID
+export async function getConsultationById(id: string) {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    throw new Error("Token requerido");
+  }
+
+  const res = await fetch(`${BUSINESS_URL}/api/consultations/${id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Error al obtener la consulta médica");
+  }
+
+  return await res.json();
+}
+
+// Actualizar consulta médica
+export async function updateConsultation(id: string, data: any) {
+  const token = localStorage.getItem('auth_token');
+  if (!token) {
+    throw new Error("Token requerido");
+  }
+
+  const res = await fetch(`${BUSINESS_URL}/api/consultations/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json();
+    throw new Error(errorData.message || "Error al actualizar la consulta médica");
+  }
+
+  return await res.json();
+}

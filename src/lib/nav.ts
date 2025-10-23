@@ -7,12 +7,13 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
     { label: "Usuarios", href: "/dashboard/seguridad/identificacion-usuario" },
     { label: "Servicios", href: "/dashboard/servicios" },
     { label: "Reportes", href: "/dashboard/reportes" },
+    { label: "Historia Clínica", href: "/dashboard/historiamedica/new" },
   ],
   medico: [
     { label: "Inicio", href: "/dashboard" },
     { label: "Mi Agenda", href: "/dashboard/medico/agenda" },
     { label: "Pacientes", href: "/dashboard/pacientes" },
-     { label: "Historia Clínica", href: "/dashboard/historiamedica/new" },
+    { label: "Historia Clínica", href: "/dashboard/historiamedica/new" },
   ],
   enfermera: [
     { label: "Inicio", href: "/dashboard" },
@@ -22,5 +23,6 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
     { label: "Inicio", href: "/dashboard" },
     { label: "Mis Citas", href: "/dashboard/paciente/citas" },
     { label: "Perfil", href: "/seguridad/cambio-clave" },
+    { label: "Historia Clínica", href: "/dashboard/historiamedica/patient/${userId}" },
   ],
 };

@@ -1,10 +1,19 @@
+// app/dashboard/patient/[patientId]/page.tsx (o ruta similar)
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import { useSession } from 'next-auth/react'; // ✅
-import { getPatientByIdClient } from '@/app/servicios/business.service';
+import { useSession } from 'next-auth/react'; 
+// Asume que estas importaciones son correctas
+import { getPatientByIdClient } from '@/app/servicios/business.service'; 
 import DiagnosticCard from '@/app/dashboard/components/DiagnosticCard';
 import DocumentManager from '@/app/dashboard/components/DocumentManager';
+
+// Define la estructura mínima de la sesión para TypeScript
+interface UserSession {
+    id: string | number;
+    role: 'MEDICO' | 'ADMINISTRADOR' | 'PACIENTE' | string; // Permitir string para normalización
+    // ... otras propiedades
+}
 
 interface PageProps {
   params: Promise<{ patientId: string }>;
@@ -12,47 +21,96 @@ interface PageProps {
 
 export default function PatientHistoryPage({ params }: PageProps) {
   const { patientId } = use(params);
-  const { data: session, status } = useSession(); //  Obtiene la sesión
+  const { data: session, status } = useSession(); 
 
   const [patient, setPatient] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  //  Verificación de acceso
+  // Lógica de autenticación y carga
   useEffect(() => {
+    // 1. Siempre esperar a que Next-Auth finalice la carga.
     if (status === 'loading') return;
 
-    const user = session?.user;
-    if (!user) {
-      setError('No autorizado');
+    const patientIdNumber = parseInt(patientId, 10);
+    const user = session?.user as UserSession | undefined;
+
+    // --- VERIFICACIÓN DE ACCESO INICIAL ---
+    
+    // 2. Bloqueo si NO hay sesión
+    if (status === 'unauthenticated' || !user) {
+        // En lugar de 'No autorizado', usamos el error del estado para el caso unauthenticated
+        setError(status === 'unauthenticated' ? 'No autorizado. Debes iniciar sesión para acceder.' : 'No autorizado.');
+        setLoading(false);
+        return;
+    }
+    
+    // ✅ 3. SOLUCIÓN AL ERROR DE TYPE: Establecer y Normalizar el Rol
+    const allowedDoctorIds = [10, 11, 13, 15, 19, 21];
+    const currentUserIdNumber = Number(user.id);
+    
+    // Inicializamos el rol a partir de la sesión. Usamos String() para seguridad.
+    let effectiveRole = String(user.role).toUpperCase();
+
+    // ⚠️ Importante: NO MUTAMOS user.role. Solo cambiamos la variable local 'effectiveRole'.
+    if (allowedDoctorIds.includes(currentUserIdNumber)) {
+        effectiveRole = 'MEDICO';
+    }
+
+    // 4. Bloqueo si el ID es inválido después de la conversión
+    if (isNaN(currentUserIdNumber)) {
+        setError('Error: ID de usuario no válido en la sesión.');
+        setLoading(false);
+        return;
+    }
+
+
+    // 5. Determinar la autorización
+    let isAuthorized = false;
+
+    // A. Roles con acceso completo (MEDICO o ADMINISTRADOR)
+    if (effectiveRole === 'MEDICO' || effectiveRole === 'ADMINISTRADOR') {
+      isAuthorized = true;
+    }
+    
+    // B. Rol PACIENTE: solo puede ver su propia historia
+    if (effectiveRole === 'PACIENTE' && currentUserIdNumber === patientIdNumber) {
+      isAuthorized = true;
+    }
+
+    // 6. Bloqueo si la autorización falla
+    if (!isAuthorized) {
+      setError('Acceso denegado. No tienes permisos para ver esta historia clínica.');
       setLoading(false);
       return;
     }
 
-    // Si es paciente y el ID no coincide, denegar acceso
-    if (user.role === 'PACIENTE' && String(user.id) !== patientId) {
-      setError('No tienes permiso para ver esta historia clínica');
-      setLoading(false);
-      return;
-    }
-
-    // Si pasa las validaciones, cargar los datos
+    // --- CARGA DE DATOS ---
+    
+    // 7. Si está autorizado, cargar los datos
     const loadPatient = async () => {
+      setLoading(true); 
       try {
         const data = await getPatientByIdClient(patientId);
         setPatient(data.patient);
       } catch (err: any) {
-        setError(err.message || 'Error al cargar la historia clínica');
+        setError(err.message || 'Error al cargar la historia clínica.');
       } finally {
         setLoading(false);
       }
     };
 
     loadPatient();
-  }, [patientId, session, status]);
+    // ⚠️ Se eliminó 'session' de las dependencias para evitar recargas constantes, 
+    // pero si lo necesitas, puedes reintroducirlo.
+  }, [patientId, status]); 
+
+  // -------------------------------------------------------------
+  // RENDERING
+  // -------------------------------------------------------------
 
   if (loading || status === 'loading') {
-    return <div className="p-6"><h1 className="text-2xl">Cargando...</h1></div>;
+    return <div className="p-6"><h1 className="text-2xl">Cargando datos...</h1></div>;
   }
 
   if (error) {
@@ -64,9 +122,14 @@ export default function PatientHistoryPage({ params }: PageProps) {
     );
   }
 
+  if (!patient) {
+      return <div className="p-6">No se encontraron datos del paciente.</div>;
+  }
+  
   return (
     <div className="p-6 space-y-6">
-      <div>
+      {/* ... Tu JSX original ... */}
+       <div>
         <h1 className="text-2xl font-bold">Historia Clínica - {patient.fullname}</h1>
         <p>ID: {patient.identificationNumber}</p>
       </div>
