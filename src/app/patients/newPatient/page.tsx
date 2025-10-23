@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, FormEvent } from 'react';
+import Link from 'next/link';
 import { createPatient } from '@/app/servicios/patients.service';
 
 export default function NewPatientPageRoute() {
@@ -103,7 +104,8 @@ export default function NewPatientPageRoute() {
                     </div>
                 </div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-between">
+                    <Link href="/patients" className="px-4 py-2 bg-gray-200 rounded">Cancelar</Link>
                     <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">Crear paciente</button>
                 </div>
             </form>

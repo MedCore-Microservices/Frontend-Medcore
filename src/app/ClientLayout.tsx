@@ -16,6 +16,9 @@ export default function ClientLayout({
         <nav className="container mx-auto flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold">MedCore</Link>
           <ul className="flex space-x-4">
+            <li>
+              <Link href="/patients" className="hover:underline font-medium">Pacientes</Link>
+            </li>
             {!sesionActiva ? (
               <>
                 <li>

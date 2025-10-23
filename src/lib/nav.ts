@@ -21,6 +21,7 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
   ],
   paciente: [
     { label: "Inicio", href: "/dashboard" },
+    { label: "Pacientes", href: "/patients" },
     { label: "Mis Citas", href: "/dashboard/paciente/citas" },
     { label: "Perfil", href: "/seguridad/cambio-clave" },
     { label: "Historia Clínica", href: "/dashboard/historiamedica/patient/${userId}" },
