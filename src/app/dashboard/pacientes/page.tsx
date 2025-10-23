@@ -4,8 +4,14 @@
 import { useEffect, useState } from 'react';
 import { searchPatientsAdvanced } from '@/app/servicios/business.service';
 
+type Patient = {
+  id: string | number;
+  fullname?: string;
+  identificationNumber?: string;
+};
+
 export default function PatientsPage() {
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -13,11 +19,12 @@ export default function PatientsPage() {
     const loadPatients = async () => {
       try {
         setLoading(true);
-        // Puedes pasar filtros si los necesitas
-        const data = await searchPatientsAdvanced();
-        setPatients(data.patients || []);
-      } catch (err: any) {
-        setError(err.message || 'Error al cargar pacientes');
+  // Puedes pasar filtros si los necesitas
+  const data = await searchPatientsAdvanced({ page: 1, limit: 20 });
+  setPatients(data.patients || []);
+      } catch (err) {
+        const msg = (err as unknown as { message?: string })?.message || 'Error al cargar pacientes';
+        setError(msg);
       } finally {
         setLoading(false);
       }

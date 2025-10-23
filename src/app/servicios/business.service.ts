@@ -1,30 +1,76 @@
 const BUSINESS_URL = "http://localhost:3002";
 
 // Búsqueda avanzada de pacientes
+// Legacy-compatible: can be called either with positional args (diagnostic, dateFrom, dateTo, page, limit)
+// or with a single options object { diagnostic, dateFrom, dateTo, bloodType, allergies, chronicDiseases, search, page, limit }
+type SearchPatientsOptions = {
+  diagnostic?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  bloodType?: string;
+  allergies?: string;
+  chronicDiseases?: string;
+  search?: string;
+  page?: number;
+  limit?: number;
+};
+
 export async function searchPatientsAdvanced(
-  diagnostic?: string, 
-  dateFrom?: string, 
-  dateTo?: string, 
-  page: number = 1, 
+  diagnosticOrOptions?: SearchPatientsOptions | string,
+  dateFrom?: string,
+  dateTo?: string,
+  page: number = 1,
   limit: number = 10
 ) {
-  console.log("🔍 Buscando pacientes con filtros:", { diagnostic, dateFrom, dateTo });
-  
+  // Normalize input
+  let diagnostic: string | undefined;
+  let dateFromVal: string | undefined;
+  let dateToVal: string | undefined;
+  let pageVal = page;
+  let limitVal = limit;
+  let bloodType: string | undefined;
+  let allergies: string | undefined;
+  let chronicDiseases: string | undefined;
+  let search: string | undefined;
+
+  if (diagnosticOrOptions && typeof diagnosticOrOptions === 'object' && !Array.isArray(diagnosticOrOptions)) {
+    const opts = diagnosticOrOptions as SearchPatientsOptions;
+    diagnostic = opts.diagnostic;
+    dateFromVal = opts.dateFrom;
+    dateToVal = opts.dateTo;
+    bloodType = opts.bloodType;
+    allergies = opts.allergies;
+    chronicDiseases = opts.chronicDiseases;
+    search = opts.search;
+    pageVal = opts.page ?? pageVal;
+    limitVal = opts.limit ?? limitVal;
+  } else {
+    diagnostic = diagnosticOrOptions as string | undefined;
+    dateFromVal = dateFrom;
+    dateToVal = dateTo;
+  }
+
+  console.log("🔍 Buscando pacientes con filtros:", { diagnostic, dateFrom: dateFromVal, dateTo: dateToVal, bloodType, allergies, chronicDiseases, search, page: pageVal, limit: limitVal });
+
   // Construir parámetros de query
   const params = new URLSearchParams();
   if (diagnostic) params.append('diagnostic', diagnostic);
-  if (dateFrom) params.append('dateFrom', dateFrom);
-  if (dateTo) params.append('dateTo', dateTo);
-  params.append('page', page.toString());
-  params.append('limit', limit.toString());
+  if (dateFromVal) params.append('dateFrom', dateFromVal);
+  if (dateToVal) params.append('dateTo', dateToVal);
+  if (bloodType) params.append('bloodType', bloodType);
+  if (allergies) params.append('allergies', allergies);
+  if (chronicDiseases) params.append('chronicDiseases', chronicDiseases);
+  if (search) params.append('search', search);
+  params.append('page', pageVal.toString());
+  params.append('limit', limitVal.toString());
 
   // Obtener token del localStorage
   const token = localStorage.getItem('auth_token');
   console.log("🔑 Token obtenido:", token ? 'SÍ' : 'NO');
-  
+
   const res = await fetch(`${BUSINESS_URL}/api/patients/search/advanced?${params.toString()}`, {
     method: "GET",
-    headers: { 
+    headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
     },
@@ -38,9 +84,9 @@ export async function searchPatientsAdvanced(
       if (typeof errorData.message === 'string') {
         errorMessage = errorData.message;
       }
-    } catch (e) {
-      errorMessage = res.statusText || "Error de conexión";
-    }
+    } catch {
+        errorMessage = res.statusText || "Error de conexión";
+      }
     throw new Error(errorMessage);
   }
 
@@ -60,7 +106,7 @@ export async function getPatientByIdClient(id: string) {
     throw new Error("Token requerido");
   }
 
-  const res = await fetch(`http://localhost:3002/api/patients/${id}`, {
+  const res = await fetch(`${BUSINESS_URL}/api/patients/${id}`, {
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`
@@ -97,7 +143,7 @@ export async function downloadDocument(id: number): Promise<void> {
     throw new Error("Token requerido");
   }
 
-  const response = await fetch(`http://localhost:3002/api/documents/${id}`, {
+  const response = await fetch(`${BUSINESS_URL}/api/documents/${id}`, {
     method: "GET",
     headers: {
       "Authorization": `Bearer ${token}`,
@@ -145,7 +191,7 @@ export async function createDiagnostic(
     nextAppointment?: string;
   },
   files?: File[]
-): Promise<any> {
+): Promise<Record<string, unknown>> {
   if (typeof window === 'undefined') throw new Error("Solo se puede usar en el cliente");
 
   const token = localStorage.getItem('auth_token');
@@ -174,7 +220,7 @@ export async function createDiagnostic(
     });
   }
 
-  const res = await fetch(`http://localhost:3002/api/diagnostics/patients/${patientId}/diagnostics`, {
+  const res = await fetch(`${BUSINESS_URL}/api/diagnostics/patients/${patientId}/diagnostics`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${token}`

@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { loginUser } from '../servicios/seguridad.service';
 import { searchPatientsAdvanced } from '../servicios/business.service';
 
@@ -24,17 +24,18 @@ export default function TestConexion() {
       console.log('🔑 Token en localStorage:', tokenGuardado);
       setResultado(prev => prev + `🔑 Token en localStorage: ${tokenGuardado ? 'SÍ' : 'NO'}\n`);
       
-      // 2. Buscar pacientes
-      setResultado(prev => prev + '🔍 Buscando pacientes...\n');
-      const pacientes = await searchPatientsAdvanced('Fractura'); 
+  // 2. Buscar pacientes
+  setResultado(prev => prev + '🔍 Buscando pacientes...\n');
+  const pacientes = await searchPatientsAdvanced({ search: 'Fractura', page: 1, limit: 10 });
       
-      setResultado(prev => prev + `✅ ${pacientes.patients.length} pacientes encontrados\n`);
-      setResultado(prev => prev + `📊 Paginación: página ${pacientes.pagination.page} de ${pacientes.pagination.totalPages}\n`);
+  setResultado(prev => prev + `✅ ${pacientes.patients.length} pacientes encontrados\n`);
+  setResultado(prev => prev + `📊 Paginación: página ${pacientes.pagination.page} de ${pacientes.pagination.totalPages}\n`);
       
       setResultado(prev => prev + '\n🎉 ¡TODOS LOS SERVICIOS FUNCIONAN!\n');
       
-    } catch (error: any) {
-      setResultado(prev => prev + `\n❌ Error: ${error.message}\n`);
+    } catch (error) {
+      const msg = (error as unknown as { message?: string })?.message || String(error);
+      setResultado(prev => prev + `\n❌ Error: ${msg}\n`);
       console.error('Error completo:', error);
     }
   };
