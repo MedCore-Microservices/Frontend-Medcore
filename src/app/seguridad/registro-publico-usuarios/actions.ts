@@ -3,30 +3,22 @@
 
 import { z } from "zod";
 import { passwordMatchSchema } from "@/validation/passwordMatchSchema";
-import { registerUsuario } from "@/app/servicios/seguridad.service";
+import { registerUsuario, PublicRegisterPayload } from "@/app/servicios/seguridad.service";
 
 const newUserSchema = z.object({
   email: z.string().email(),
   fullname: z.string().min(1, "El nombre completo es obligatorio"), 
 }).and(passwordMatchSchema);
 
-export const registerUser = async ({
-  email,
-  fullname,
-  password,
-  passwordConfirm
-}: {
-  email: string;
-  fullname: string;
-  password: string;
-  passwordConfirm: string;
-}) => {
+export const registerUser = async (
+  payload: PublicRegisterPayload & { passwordConfirm?: string }
+) => {
 
   const newUserValidation = newUserSchema.safeParse({
-    email,
-    fullname,          
-    password,
-    passwordConfirm
+    email: payload.email,
+    fullname: payload.fullname,          
+    password: payload.password,
+    passwordConfirm: payload.passwordConfirm
   });
 
   if (!newUserValidation.success) {
@@ -38,7 +30,7 @@ export const registerUser = async ({
 
   // 3. Si la validación pasa, llamamos al backend
   try {
-    const result = await registerUsuario(email, password, fullname);
+  const result = await registerUsuario(payload);
 
     return {
       success: true,

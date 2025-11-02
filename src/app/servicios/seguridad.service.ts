@@ -1,13 +1,27 @@
 const BACKEND_URL ="http://localhost:3001";
-export async function registerUsuario(email: string, password: string, fullname: string) {
-  console.log("📡 Llamando al backend con:", { email, fullname }); 
-  console.log("🔗 URL del backend:", BACKEND_URL); // ← Agrega esto para debug
+export type PublicRegisterPayload = {
+  email: string;
+  password: string;
+  fullname: string;
+  identificationNumber?: string;
+  dateOfBirth?: string; // ISO string
+  gender?: string;
+  phone?: string;
+  address?: string;
+  // Aceptamos extras por si se agregan más campos
+  [key: string]: any;
+}
+
+export async function registerUsuario(payload: PublicRegisterPayload) {
+  const { email, fullname, ...rest } = payload;
+  console.log("📡 Llamando al backend con:", { email, fullname, extraKeys: Object.keys(rest) }); 
+  console.log("🔗 URL del backend:", BACKEND_URL);
   console.log("🌍 NODE_ENV:", process.env.NODE_ENV);
   
   const res = await fetch(`${BACKEND_URL}/api/auth/seguridad/registro-publico-usuarios`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, fullname }),
+    body: JSON.stringify(payload),
   });
 
   console.log("📥 Respuesta completa del backend:", res);
