@@ -6,6 +6,15 @@ export default function DashboardMedico() {
       <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <h2 className="text-2xl font-bold text-gray-900">Dashboard Médico</h2>
         <p className="text-gray-600">Gestión de pacientes y consultas</p>
+        {/* Acceso directo a Cola de Pacientes */}
+        <div className="mt-4">
+          <Link
+            href="/dashboard/queue"
+            className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition shadow-sm"
+          >
+            <span>Gestionar Cola (Turnos)</span>
+          </Link>
+        </div>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
@@ -79,6 +88,13 @@ export default function DashboardMedico() {
             </li>
           ))}
         </ul>
+      </div>
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-semibold mb-2">Cola de Pacientes</h3>
+        <p className="text-gray-600 mb-4">Gestiona los turnos en tiempo real.</p>
+        <Link href="/dashboard/queue" className="inline-block bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition">
+          Ver Cola
+        </Link>
       </div>
     </div>
   );

@@ -59,6 +59,11 @@ export default function DashboardPaciente() {
           </div>
         </div>
       </div>
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-semibold mb-2">Mi Turno</h3>
+        <p className="text-gray-600 mb-4">Únete a la cola y consulta tu número y posición en tiempo real.</p>
+        <Link href="/patients/turno" className="inline-block bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition">Ir a Mi Turno</Link>
+      </div>
       {/* Mostrar acceso a lista de pacientes solo en desarrollo para pruebas */}
       {process.env.NODE_ENV === "development" && (
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">

@@ -16,10 +16,17 @@ export async function getAuthToken(): Promise<string | null> {
  */
 export function getAuthTokenClient(): string | null {
   if (typeof window === 'undefined') return null;
-  
-  // Primero intentar obtener de localStorage (para compatibilidad con código viejo)
-  const localToken = localStorage.getItem('auth_token');
-  if (localToken) return localToken;
+  // Preferir sessionStorage para permitir múltiples sesiones (medico/paciente) en ventanas distintas
+  try {
+    const sessionToken = sessionStorage.getItem('auth_token');
+    if (sessionToken) return sessionToken;
+  } catch {}
+
+  // Compatibilidad con código existente
+  try {
+    const localToken = localStorage.getItem('auth_token');
+    if (localToken) return localToken;
+  } catch {}
   
   return null;
 }

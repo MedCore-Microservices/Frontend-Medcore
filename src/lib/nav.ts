@@ -13,6 +13,7 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
     { label: "Inicio", href: "/dashboard" },
     { label: "Mi Agenda", href: "/dashboard/medico/agenda" },
     { label: "Pacientes", href: "/dashboard/pacientes" },
+    { label: "Cola de Pacientes", href: "/dashboard/queue" },
     { label: "Historia Clínica", href: "/dashboard/historiamedica/new" },
   ],
   enfermera: [
@@ -23,6 +24,8 @@ export const NAV_ITEMS: Record<string, NavItem[]> = {
     { label: "Inicio", href: "/dashboard" },
     { label: "Pacientes", href: "/patients" },
     { label: "Mis Citas", href: "/dashboard/paciente/citas" },
+    // Nuevo acceso directo al turno actual del paciente
+    { label: "Mi Turno", href: "/patients/turno" },
     { label: "Perfil", href: "/seguridad/cambio-clave" },
     { label: "Historia Clínica", href: "/dashboard/historiamedica/patient/${userId}" },
   ],
