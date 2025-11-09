@@ -8,6 +8,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
     case 'administrador':
       return [
         { label: 'Inicio', href: '/dashboard' },
+        { label: 'Citas', href: '/dashboard/appointments' },
         { label: 'Usuarios', href: '/dashboard/seguridad/identificacion-usuario' },
         { label: 'Servicios', href: '/dashboard/servicios' },
         { label: 'Reportes', href: '/dashboard/reportes' },
@@ -17,6 +18,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
     case 'medico':
       return [
         { label: 'Inicio', href: '/dashboard' },
+        { label: 'Citas', href: '/dashboard/appointments' },
         { label: 'Mi Agenda', href: '/dashboard/medico/agenda' },
         { label: 'Pacientes', href: '/dashboard/pacientes' },
         { label: 'Cola de Pacientes', href: '/dashboard/queue' },
@@ -26,13 +28,14 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
     case 'enfermera':
       return [
         { label: 'Inicio', href: '/dashboard' },
+        { label: 'Citas', href: '/dashboard/appointments' },
         { label: 'Pacientes', href: '/dashboard/enfermero/pacientes' },
       ];
     case 'PACIENTE':
     case 'paciente':
       return [
         { label: 'Inicio', href: '/dashboard' },
-        { label: 'Mis Citas', href: '/dashboard/paciente/citas' },
+        { label: 'Mis Citas', href: '/dashboard/appointments' },
         { label: 'Mi Turno', href: '/patients/turno' },
         { label: 'Perfil', href: '/seguridad/cambio-clave' },
         // Ruta dinámica a historia clínica del paciente

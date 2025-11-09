@@ -97,6 +97,84 @@ export async function listAppointmentsByDoctor(doctorId: string): Promise<Appoin
   return appts.map((a: any) => normalizeAppointment(a));
 }
 
+// Listado general (si el backend lo soporta)
+export async function listAppointmentsAll(): Promise<AppointmentDTO[]> {
+  const token = getToken();
+  const res = await fetch(`${AUTH_URL}/api/appointments`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+  });
+  const data = await handleJson(res, 'Error listando citas');
+  const appts = data.appointments || data || [];
+  return appts.map((a: any) => normalizeAppointment(a));
+}
+
+export type UpsertAppointmentPayload = {
+  date: string; // ISO o compatible con backend
+  doctorId: string;
+  specializationId?: string;
+  patientId?: string;
+  notes?: string;
+};
+
+export async function createAppointment(payload: UpsertAppointmentPayload): Promise<AppointmentDTO> {
+  const token = getToken();
+  const res = await fetch(`${AUTH_URL}/api/appointments`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await handleJson(res, 'Error creando cita');
+  return normalizeAppointment(data.appointment || data);
+}
+
+export async function updateAppointment(id: string, payload: Partial<UpsertAppointmentPayload>): Promise<AppointmentDTO> {
+  const token = getToken();
+  const res = await fetch(`${AUTH_URL}/api/appointments/${id}`, {
+    method: 'PUT',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const data = await handleJson(res, 'Error actualizando cita');
+  return normalizeAppointment(data.appointment || data);
+}
+
+export async function deleteAppointment(id: string): Promise<{ success: boolean } & Partial<AppointmentDTO>> {
+  const token = getToken();
+  const res = await fetch(`${AUTH_URL}/api/appointments/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+  });
+  const data = await handleJson(res, 'Error eliminando cita');
+  return { success: true, ...normalizeAppointment(data.appointment || data) };
+}
+
+// Recursos auxiliares para selectores dinámicos (si el backend expone estos endpoints)
+export type DoctorDTO = { id: string; fullname: string; specializationId?: string };
+export type SpecializationDTO = { id: string; name: string };
+
+export async function fetchDoctors(): Promise<DoctorDTO[]> {
+  const token = getToken();
+  const res = await fetch(`${AUTH_URL}/api/doctors`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+  });
+  const data = await handleJson(res, 'Error cargando doctores');
+  const list = data.doctors || data || [];
+  return list.map((d: any) => ({ id: String(d.id), fullname: d.fullname || `${d.name || ''} ${d.lastname || ''}`.trim(), specializationId: d.specializationId ? String(d.specializationId) : undefined }));
+}
+
+export async function fetchSpecializations(): Promise<SpecializationDTO[]> {
+  const token = getToken();
+  const res = await fetch(`${AUTH_URL}/api/specializations`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+  });
+  const data = await handleJson(res, 'Error cargando especialidades');
+  const list = data.specializations || data || [];
+  return list.map((s: any) => ({ id: String(s.id), name: s.name || s.title || s.specializationName }));
+}
+
 // Normaliza diferencias entre backend y frontend
 export function normalizeStatus(raw?: string | null): AppointmentStatus {
   if (!raw) return 'scheduled';
