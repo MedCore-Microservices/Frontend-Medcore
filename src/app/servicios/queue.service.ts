@@ -3,6 +3,7 @@ import { getAuthTokenClient } from '@/lib/getAuthToken';
 const BUSINESS_URL = process.env.NEXT_PUBLIC_BUSINESS_API || 'http://localhost:3002';
 
 export type QueueStatus = 'WAITING' | 'CALLED' | 'COMPLETED' | 'CANCELLED';
+interface UserLite { id: number; fullname: string }
 export interface QueueTicket {
   id: number;
   doctorId: number;
@@ -11,6 +12,8 @@ export interface QueueTicket {
   createdAt: string;
   calledAt?: string | null;
   completedAt?: string | null;
+  patient?: UserLite; // datos enriquecidos opcionales
+  doctor?: UserLite;  // datos enriquecidos opcionales
 }
 
 // Helpers
@@ -57,6 +60,12 @@ export async function callNext(doctorId: number): Promise<QueueTicket | null> {
 
 export async function getCurrent(doctorId: number): Promise<QueueTicket | null> {
   const res = await fetch(`${BUSINESS_URL}/api/queue/doctor/${doctorId}/current`, { headers: authHeaders() });
+  return parse(res);
+}
+
+// Lista de pacientes en espera para un médico
+export async function getWaiting(doctorId: number): Promise<QueueTicket[]> {
+  const res = await fetch(`${BUSINESS_URL}/api/queue/doctor/${doctorId}/waiting`, { headers: authHeaders() });
   return parse(res);
 }
 

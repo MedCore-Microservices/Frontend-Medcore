@@ -1,28 +1,42 @@
 "use client";
 import { useEffect, useState, useCallback } from 'react';
-import { callNext, getCurrent } from '@/app/servicios/queue.service';
+import { callNext, getCurrent, getWaiting, type QueueTicket } from '@/app/servicios/queue.service';
 import { useSession } from 'next-auth/react';
+import { normalizarRol } from '@/lib/normalizarRol';
 
 export default function DoctorQueuePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   // El doctorId debe venir del usuario logueado con rol MEDICO
-  const doctorId = session?.user?.role === 'MEDICO' ? Number(session.user.id) : undefined;
-  const [current, setCurrent] = useState<any>(null);
+  const normalizedRole = normalizarRol(session?.user?.role);
+  const doctorId = normalizedRole === 'medico' ? Number(session?.user?.id) : undefined;
+  const [current, setCurrent] = useState<QueueTicket | null>(null);
+  const [waiting, setWaiting] = useState<QueueTicket[]>([]);
   const [loadingCall, setLoadingCall] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
+    // Evitar falso positivo mientras la sesión se está cargando
+    if (status === 'loading') return;
     if (!doctorId) {
-      setError('No se detectó un doctorId válido para esta sesión. Verifica que iniciaste como MEDICO.');
+      // Solo mostrar error si ya estamos autenticados y el rol debe ser médico
+      if (status === 'authenticated' && normalizedRole === 'medico') {
+        setError('No se detectó un doctorId válido para esta sesión. Verifica que iniciaste como MEDICO.');
+      }
       return;
     }
     try {
-      const c = await getCurrent(doctorId);
+      const [c, w] = await Promise.all([
+        getCurrent(doctorId),
+        getWaiting(doctorId),
+      ]);
       setCurrent(c);
-    } catch (e:any) {
-      setError(e.message);
+      setWaiting(w || []);
+      setError(null); // limpiar error si todo salió bien
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al actualizar la cola';
+      setError(msg);
     }
-  }, [doctorId]);
+  }, [doctorId, status, normalizedRole]);
 
   useEffect(() => {
     refresh();
@@ -31,16 +45,14 @@ export default function DoctorQueuePage() {
   }, [refresh]);
 
   async function handleCallNext() {
-    if (!doctorId) {
-      setError('doctorId faltante: inicia sesión como MEDICO.');
-      return;
-    }
+    if (!doctorId) return;
     setLoadingCall(true);
     try {
       await callNext(doctorId);
       await refresh();
-    } catch (e:any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Error al llamar al siguiente paciente';
+      setError(msg);
     } finally {
       setLoadingCall(false);
     }
@@ -53,7 +65,11 @@ export default function DoctorQueuePage() {
       <div className="bg-white rounded shadow p-4 flex items-center justify-between">
         <div>
           <p className="font-semibold">Ticket actual:</p>
-          {current ? <p className="text-xl">#{current.id} Paciente {current.patientId}</p> : <p className="text-gray-500">Ninguno</p>}
+          {current ? (
+            <p className="text-xl">Ticket #{current.id} • {current.patient?.fullname || `Paciente ${current.patientId}`}</p>
+          ) : (
+            <p className="text-gray-500">Ninguno</p>
+          )}
         </div>
         <button
           onClick={handleCallNext}
@@ -63,7 +79,28 @@ export default function DoctorQueuePage() {
           {loadingCall ? 'Llamando...' : 'Llamar Siguiente'}
         </button>
       </div>
-      <p className="text-xs text-gray-400">Actualiza cada 5s. Próximo paso: mostrar lista completa.</p>
+      <div className="bg-white rounded shadow p-4">
+        <div className="flex items-center justify-between mb-3">
+          <p className="font-semibold">En espera</p>
+          <span className="text-sm bg-gray-100 border rounded px-2 py-1">{waiting.length} pacientes</span>
+        </div>
+        {waiting.length === 0 ? (
+          <p className="text-gray-500">No hay pacientes en espera.</p>
+        ) : (
+          <ul className="divide-y">
+            {waiting.map((t) => (
+              <li key={t.id} className="py-2 flex items-center justify-between">
+                <div>
+                  <p className="font-medium">Ticket #{t.id}</p>
+                  <p className="text-sm text-gray-500">{t.patient?.fullname || `Paciente ${t.patientId}`}</p>
+                </div>
+                <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">{t.status}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <p className="text-xs text-gray-400">Se actualiza cada 5s.</p>
     </div>
   );
 }
