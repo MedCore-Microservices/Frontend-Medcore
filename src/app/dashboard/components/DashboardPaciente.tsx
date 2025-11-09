@@ -1,24 +1,71 @@
+"use client";
 import Link from "next/link";
+import React, { useState } from "react";
+import AppointmentStatusBadge from "@/components/ui/AppointmentStatusBadge";
+import { confirmAppointment } from "@/app/servicios/appointment.service";
+import type { AppointmentStatus } from "@/types/appointment";
 
 export default function DashboardPaciente() {
+  // Ejemplo de cita próxima para interacción de confirmación
+  const [nextAppointment, setNextAppointment] = useState<{ id: string; status: AppointmentStatus; date: string; doctorName: string }>({
+    id: "demo-apt-1",
+    status: "scheduled" as const,
+    date: "2025-11-10T09:00:00Z",
+    doctorName: "Dra. Sánchez",
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleConfirm = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await confirmAppointment(nextAppointment.id);
+      setNextAppointment((a) => ({ ...a, status: "confirmed" }));
+    } catch (e: any) {
+      setError(e.message || "Error confirmando cita");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6 px-3 sm:px-0">
       <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <h2 className="text-2xl font-bold text-gray-900">Mi Área de Paciente</h2>
         <p className="text-gray-600">Bienvenido a su portal de salud</p>
       </div>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
-          <h3 className="font-semibold text-blue-900">Próxima Cita</h3>
-          <p className="text-xl font-bold text-blue-600">15 Mar 2024</p>
-          <p className="text-sm text-blue-700">10:30 AM - Dr. García</p>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
+          <h3 className="font-semibold text-blue-900 flex items-center gap-2">
+            Próxima Cita <AppointmentStatusBadge status={nextAppointment.status} />
+          </h3>
+          <p className="text-gray-700 mt-2">
+            {nextAppointment.doctorName} - {new Date(nextAppointment.date).toLocaleString()}
+          </p>
+          {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+          <div className="mt-3 flex gap-2">
+            <Link href="/dashboard/paciente/citas" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+              Ver Mis Citas
+            </Link>
+            {nextAppointment.status === "scheduled" && (
+              <button
+                onClick={handleConfirm}
+                disabled={loading}
+                className="bg-green-600 disabled:opacity-60 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+              >
+                {loading ? "Confirmando..." : "Confirmar"}
+              </button>
+            )}
+          </div>
         </div>
-  <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-green-900">Medicamentos Activos</h3>
           <p className="text-2xl font-bold text-green-600">3</p>
         </div>
-  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-purple-900">Resultados Pendientes</h3>
           <p className="text-2xl font-bold text-purple-600">1</p>
         </div>
@@ -40,8 +87,8 @@ export default function DashboardPaciente() {
             </div>
           </div>
         </div>
-        
-  <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+
+        <div className="bg-white shadow rounded-lg p-4 sm:p-6">
           <h3 className="text-lg font-semibold mb-4">Medicamentos Actuales</h3>
           <div className="space-y-2">
             <div className="flex justify-between items-center p-2 border rounded">
@@ -59,17 +106,28 @@ export default function DashboardPaciente() {
           </div>
         </div>
       </div>
+
       <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <h3 className="text-lg font-semibold mb-2">Mi Turno</h3>
         <p className="text-gray-600 mb-4">Únete a la cola y consulta tu número y posición en tiempo real.</p>
-        <Link href="/patients/turno" className="inline-block bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition">Ir a Mi Turno</Link>
+        <Link
+          href="/patients/turno"
+          className="inline-block bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition"
+        >
+          Ir a Mi Turno
+        </Link>
       </div>
-      {/* Mostrar acceso a lista de pacientes solo en desarrollo para pruebas */}
+
       {process.env.NODE_ENV === "development" && (
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
           <h3 className="text-lg font-semibold mb-4">Pacientes (Pruebas)</h3>
           <p className="text-gray-600 mb-4">Acceso limitado para pruebas como paciente</p>
-          <Link href="/patients" className="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Ver Pacientes</Link>
+          <Link
+            href="/patients"
+            className="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition"
+          >
+            Ver Pacientes
+          </Link>
         </div>
       )}
     </div>

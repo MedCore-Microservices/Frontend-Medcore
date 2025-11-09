@@ -1,4 +1,4 @@
-const BUSINESS_URL = "http://localhost:3002";
+const BUSINESS_URL = process.env.NEXT_PUBLIC_MS_BUSINESS_URL || "http://localhost:3002";
 
 // Búsqueda avanzada de pacientes
 // Legacy-compatible: can be called either with positional args (diagnostic, dateFrom, dateTo, page, limit)
@@ -283,3 +283,21 @@ export async function updateConsultation(id: string, data: any) {
 
   return await res.json();
 }
+
+// ==========================
+// Citas: cambiar estado (acciones)
+// ==========================
+// ==========================
+// Citas: Reexports centralizados
+// Se delega a appointment.service.ts para evitar duplicación y mantener
+// una única fuente de verdad de normalización.
+// ==========================
+export {
+  confirmAppointment,
+  completeAppointment,
+  markNoShowAppointment,
+  getAppointmentById,
+  listAppointmentsByPatient,
+  normalizeStatus,
+  normalizeAppointment
+} from './appointment.service';

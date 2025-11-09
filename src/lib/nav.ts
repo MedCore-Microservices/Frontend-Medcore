@@ -1,32 +1,52 @@
 // src/lib/nav.ts
 export type NavItem = { label: string; href: string; icon?: string /* opcional */ };
 
+// Constructor dinámico, evitando hardcodear userId en string literal
+export function buildNavItems(role: string, userId?: string): NavItem[] {
+  switch (role) {
+    case 'ADMINISTRADOR':
+    case 'administrador':
+      return [
+        { label: 'Inicio', href: '/dashboard' },
+        { label: 'Usuarios', href: '/dashboard/seguridad/identificacion-usuario' },
+        { label: 'Servicios', href: '/dashboard/servicios' },
+        { label: 'Reportes', href: '/dashboard/reportes' },
+        { label: 'Historia Clínica', href: '/dashboard/historiamedica/new' },
+      ];
+    case 'MEDICO':
+    case 'medico':
+      return [
+        { label: 'Inicio', href: '/dashboard' },
+        { label: 'Mi Agenda', href: '/dashboard/medico/agenda' },
+        { label: 'Pacientes', href: '/dashboard/pacientes' },
+        { label: 'Cola de Pacientes', href: '/dashboard/queue' },
+        { label: 'Historia Clínica', href: '/dashboard/historiamedica/new' },
+      ];
+    case 'ENFERMERA':
+    case 'enfermera':
+      return [
+        { label: 'Inicio', href: '/dashboard' },
+        { label: 'Pacientes', href: '/dashboard/enfermero/pacientes' },
+      ];
+    case 'PACIENTE':
+    case 'paciente':
+      return [
+        { label: 'Inicio', href: '/dashboard' },
+        { label: 'Mis Citas', href: '/dashboard/paciente/citas' },
+        { label: 'Mi Turno', href: '/patients/turno' },
+        { label: 'Perfil', href: '/seguridad/cambio-clave' },
+        // Ruta dinámica a historia clínica del paciente
+        ...(userId ? [{ label: 'Mi Historia Clínica', href: `/dashboard/historiamedica/patient/${userId}` }] : []),
+      ];
+    default:
+      return [{ label: 'Inicio', href: '/dashboard' }];
+  }
+}
+
+// Compatibilidad temporal (si código previo usa NAV_ITEMS)
 export const NAV_ITEMS: Record<string, NavItem[]> = {
-  administrador: [
-    { label: "Inicio", href: "/dashboard" },
-    { label: "Usuarios", href: "/dashboard/seguridad/identificacion-usuario" },
-    { label: "Servicios", href: "/dashboard/servicios" },
-    { label: "Reportes", href: "/dashboard/reportes" },
-    { label: "Historia Clínica", href: "/dashboard/historiamedica/new" },
-  ],
-  medico: [
-    { label: "Inicio", href: "/dashboard" },
-    { label: "Mi Agenda", href: "/dashboard/medico/agenda" },
-    { label: "Pacientes", href: "/dashboard/pacientes" },
-    { label: "Cola de Pacientes", href: "/dashboard/queue" },
-    { label: "Historia Clínica", href: "/dashboard/historiamedica/new" },
-  ],
-  enfermera: [
-    { label: "Inicio", href: "/dashboard" },
-    { label: "Pacientes", href: "/dashboard/enfermero/pacientes" },
-  ],
-  paciente: [
-    { label: "Inicio", href: "/dashboard" },
-    { label: "Pacientes", href: "/patients" },
-    { label: "Mis Citas", href: "/dashboard/paciente/citas" },
-    // Nuevo acceso directo al turno actual del paciente
-    { label: "Mi Turno", href: "/patients/turno" },
-    { label: "Perfil", href: "/seguridad/cambio-clave" },
-    { label: "Historia Clínica", href: "/dashboard/historiamedica/patient/${userId}" },
-  ],
+  paciente: buildNavItems('paciente'),
+  medico: buildNavItems('medico'),
+  administrador: buildNavItems('administrador'),
+  enfermera: buildNavItems('enfermera'),
 };
