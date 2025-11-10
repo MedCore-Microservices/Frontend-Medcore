@@ -16,8 +16,10 @@ export default function PatientTurnoPage() {
       const data = await getPosition(ticketId);
       setPosition(data.position);
       setStatus(data.ticket.status);
-    } catch (e:any) {
+    } catch (e:unknown) {
+      if (e instanceof Error) {
       setError(e.message);
+      }
     }
   }, [ticketId]);
 
@@ -35,10 +37,12 @@ export default function PatientTurnoPage() {
       setTicketId(res.ticket.id);
       setPosition(res.position);
       setStatus(res.ticket.status);
-    } catch (e:any) {
+    } catch (e:unknown) {
+      if (e instanceof Error) {
       setError(e.message);
-    } finally {
-      setLoading(false);
+      } else {
+        setError(String(e));
+      }
     }
   }
 
