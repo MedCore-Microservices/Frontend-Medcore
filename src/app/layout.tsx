@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "MedCore",
   description: "Sistema Integral de Gestión Hospitalaria",
+  icons: { icon: "/favicon.svg" }
 };
 
 export default function RootLayout({

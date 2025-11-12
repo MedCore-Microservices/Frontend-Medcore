@@ -81,7 +81,7 @@ export default function PatientsListPage() {
         <div className="p-6">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold">Pacientes</h1>
-                <Link href="/patients/newPatient" className="px-4 py-2 bg-blue-600 text-white rounded">Nuevo Paciente</Link>
+                <Link href="/seguridad/registro-publico-usuarios" className="px-4 py-2 bg-blue-600 text-white rounded">Nuevo Paciente</Link>
             </div>
 
             <PatientsFilters onApply={onApplyFilters} onClear={onClearFilters} initial={filters} />

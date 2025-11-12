@@ -125,7 +125,21 @@ export async function createAppointment(payload: UpsertAppointmentPayload): Prom
     body: JSON.stringify(payload),
   });
   const data = await handleJson(res, 'Error creando cita');
-  return normalizeAppointment(data.appointment || data);
+  const appt = normalizeAppointment(data.appointment || data);
+  // Notificación global en el Front para paciente (campana)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('appointment:created', { detail: { appointmentId: appt.id } }));
+  }
+  // Auto notificación backend (SMS/Email mock) en Business MS
+  try {
+    const BUSINESS_URL = process.env.NEXT_PUBLIC_MS_BUSINESS_URL || 'http://localhost:3002';
+    await fetch(`${BUSINESS_URL}/api/notifications/auto`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({ action: 'CREATED', appointmentId: appt.id })
+    });
+  } catch { /* no-op */ }
+  return appt;
 }
 
 export async function updateAppointment(id: string, payload: Partial<UpsertAppointmentPayload>): Promise<AppointmentDTO> {

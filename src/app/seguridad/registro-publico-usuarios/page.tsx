@@ -107,7 +107,7 @@ export default function RegistroPacientePage() {
     form.reset(); // Limpiar formulario solo después de verificación exitosa
     setRegisteredUser(null);
     // Mantener redirect EXACTO que tenías
-    setTimeout(() => router.push('/seguridad/identificacion-usuario'), 800);
+    setTimeout(() => router.push('/patients'), 800);
   };
 
   return (
@@ -325,7 +325,7 @@ export default function RegistroPacientePage() {
                 <Button type="submit" className="w-40" disabled={loading}>
                   {loading ? 'Registrando...' : 'Registrar paciente'}
                 </Button>
-                <Button variant="outline" type="button" onClick={() => router.push('/')} className="w-40">
+                <Button variant="outline" type="button" onClick={() => router.push('/patients')} className="w-40">
                   Cancelar
                 </Button>
               </div>

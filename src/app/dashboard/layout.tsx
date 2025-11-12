@@ -1,5 +1,4 @@
 // src/app/dashboard/layout.tsx
-import Sidebar from "./components/sidebar";
 import MobileSidebar from "./components/mobileSidebar";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
@@ -7,6 +6,8 @@ import { normalizarRol } from "@/lib/normalizarRol";
 import React from "react";
 import DashboardShell from './components/dashboardShell';
 import { SidebarStateProvider } from "./components/SidebarStateProvider";
+import { NotificationsProvider } from './components/NotificationsProvider';
+import NotificationBell from '@/app/dashboard/components/notificationBell';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode; }) {
   const session = await auth();
@@ -20,6 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="min-h-screen bg-gray-50">
       <SidebarStateProvider>
+        <NotificationsProvider>
         {/* Header */}
         <header className="bg-white shadow-sm border-b z-40">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,10 +38,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 </div>
               </div>
 
-              <nav className="flex space-x-4">
+              <nav className="flex space-x-4 items-center">
                 <a href="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Inicio</a>
                 <a href="/seguridad/cambio-clave" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">Perfil</a>
                 <a href="/seguridad/cerrar-sesion" className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium">Cerrar Sesión</a>
+                <NotificationBell />
               </nav>
             </div>
           </div>
@@ -51,6 +54,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             {children}
           </main>
         </DashboardShell>
+        </NotificationsProvider>
       </SidebarStateProvider>
     </div>
   );
