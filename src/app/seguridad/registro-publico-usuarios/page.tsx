@@ -106,8 +106,8 @@ export default function RegistroPacientePage() {
     setMessage({ type: 'success', text: '¡Cuenta verificada exitosamente! Ya puedes iniciar sesión.' });
     form.reset(); // Limpiar formulario solo después de verificación exitosa
     setRegisteredUser(null);
-    // Mantener redirect EXACTO que tenías
-    setTimeout(() => router.push('/patients'), 800);
+    // Redirigir al inicio de sesión después de verificar la cuenta
+    setTimeout(() => router.push('/seguridad/identificacion-usuario'), 800);
   };
 
   return (
