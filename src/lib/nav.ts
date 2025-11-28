@@ -19,6 +19,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
       return [
         { label: 'Inicio', href: '/dashboard' },
         { label: 'Citas', href: '/dashboard/appointments' },
+        { label: 'Consultas', href: '/doctor/consultations' },
         // Nueva página de gestión de horarios (usa dynamic segment doctorId)
         { label: 'Agenda Horarios', href: '/dashboard/schedule/ME' },
         { label: 'Pacientes', href: '/dashboard/pacientes' },
