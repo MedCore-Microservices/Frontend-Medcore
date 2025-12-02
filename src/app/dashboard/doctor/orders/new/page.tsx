@@ -16,74 +16,55 @@ interface Patient {
 
 export default function NewOrderPageDirect() {
   const router = useRouter();
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
-  const [searchPatient, setSearchPatient] = useState('');
   const [manualId, setManualId] = useState('');
-  const [useManualId, setUseManualId] = useState(false);
+  const [manualPatientInfo, setManualPatientInfo] = useState<Patient | null>(null);
   const [orderType, setOrderType] = useState<OrderType | null>(null);
   const [priority, setPriority] = useState<OrderPriority>('routine');
   const [clinicalNotes, setClinicalNotes] = useState('');
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [loadingPatients, setLoadingPatients] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Buscar pacientes cuando el usuario escribe
+  // Buscar información del paciente cuando se ingresa el ID
   useEffect(() => {
-    if (searchPatient.length < 2) {
-      setPatients([]);
+    const parsed = parseInt(manualId);
+    if (!manualId || isNaN(parsed) || parsed <= 0) {
+      setManualPatientInfo(null);
       return;
     }
 
     const timer = setTimeout(async () => {
-      setLoadingPatients(true);
       try {
         const token = getAuthTokenClient();
         const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002/api';
-        const response = await fetch(
-          `${API_URL}/patients/search/advanced?search=${encodeURIComponent(searchPatient)}&limit=10`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+        const response = await fetch(`${API_URL}/patients/${parsed}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
           }
-        );
+        })
         if (response.ok) {
           const result = await response.json();
-          setPatients(result.data || []);
+          setManualPatientInfo(result.patient);
         } else {
-          console.error('Error searching patients:', await response.text());
+          setManualPatientInfo(null);
         }
       } catch (err) {
-        console.error('Error searching patients:', err);
-      } finally {
-        setLoadingPatients(false);
+        console.error('Error fetching patient:', err);
+        setManualPatientInfo(null);
       }
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, [searchPatient]);
+  }, [manualId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    let finalPatientId: number | null = null;
-    
-    if (useManualId) {
-      const parsed = parseInt(manualId);
-      if (!manualId || isNaN(parsed) || parsed <= 0) {
-        setError('Ingresa un ID de paciente válido (número mayor a 0)');
-        return;
-      }
-      finalPatientId = parsed;
-    } else {
-      if (!selectedPatientId) {
-        setError('Selecciona un paciente de la búsqueda');
-        return;
-      }
-      finalPatientId = selectedPatientId;
+    const parsed = parseInt(manualId);
+    if (!manualId || isNaN(parsed) || parsed <= 0) {
+      setError('Ingresa un ID de paciente válido (número mayor a 0)');
+      return;
     }
     if (!orderType) {
       setError('Selecciona un tipo de orden');
@@ -98,7 +79,7 @@ export default function NewOrderPageDirect() {
     setError(null);
     try {
       const payload = {
-        patientId: finalPatientId,
+        patientId: parsed,
         priority,
         clinicalNotes: clinicalNotes.trim() || undefined,
         requestedTests: selectedTests,
@@ -119,8 +100,6 @@ export default function NewOrderPageDirect() {
     }
   };
 
-  const selectedPatient = patients.find(p => p.id === selectedPatientId);
-
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <form onSubmit={handleSubmit} className="space-y-6 bg-white shadow rounded-lg p-6">
@@ -137,89 +116,34 @@ export default function NewOrderPageDirect() {
 
         {/* Selector de Paciente */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <label className="block text-sm font-medium text-gray-700">Paciente *</label>
-            <button
-              type="button"
-              onClick={() => {
-                setUseManualId(!useManualId);
-                setSelectedPatientId(null);
-                setSearchPatient('');
-                setManualId('');
-                setPatients([]);
-              }}
-              className="text-xs text-blue-600 hover:text-blue-800"
-            >
-              {useManualId ? '← Buscar paciente' : 'Ingresar ID manualmente →'}
-            </button>
-          </div>
-          
-          {!useManualId ? (
-            <>
-              <input
-                type="text"
-                value={searchPatient}
-                onChange={e => setSearchPatient(e.target.value)}
-                placeholder="Buscar por nombre o documento..."
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              {loadingPatients && <p className="text-sm text-gray-500">Buscando...</p>}
-              {patients.length > 0 && !selectedPatientId && (
-                <div className="border border-gray-200 rounded-md max-h-40 overflow-y-auto">
-                  {patients.map(patient => (
-                    <button
-                      key={patient.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedPatientId(patient.id);
-                        setSearchPatient(patient.fullname);
-                        setPatients([]);
-                      }}
-                      className="w-full text-left px-3 py-2 hover:bg-gray-100 border-b last:border-b-0"
-                    >
-                      <div className="font-medium">{patient.fullname}</div>
-                      {patient.identificationNumber && (
-                        <div className="text-xs text-gray-500">CC: {patient.identificationNumber}</div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {selectedPatient && (
-                <div className="flex items-center justify-between bg-blue-50 border border-blue-200 px-3 py-2 rounded">
-                  <div>
-                    <div className="font-medium text-blue-900">{selectedPatient.fullname}</div>
-                    {selectedPatient.identificationNumber && (
-                      <div className="text-xs text-blue-700">CC: {selectedPatient.identificationNumber}</div>
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedPatientId(null);
-                      setSearchPatient('');
-                    }}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                  >
-                    Cambiar
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="space-y-2">
-              <input
-                type="number"
-                value={manualId}
-                onChange={e => setManualId(e.target.value)}
-                placeholder="ID del paciente (ej: 1, 2, 3...)"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-              {manualId && (
-                <div className="bg-yellow-50 border border-yellow-200 px-3 py-2 rounded text-sm text-yellow-800">
-                  Se creará la orden para el paciente con ID: <strong>{manualId}</strong>
-                </div>
-              )}
+          <label className="block text-sm font-medium text-gray-700">ID del Paciente *</label>
+          <input
+            type="number"
+            value={manualId}
+            onChange={e => setManualId(e.target.value)}
+            placeholder="Ingresa el ID del paciente (ej: 36)"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
+          {manualId && manualPatientInfo && (
+            <div className="bg-green-50 border border-green-200 px-3 py-2 rounded text-sm">
+              <div className="font-medium text-green-900">
+                ✓ Se creará la orden para:
+              </div>
+              <div className="text-green-800 mt-1 space-y-1">
+                <div><strong>Nombre:</strong> {manualPatientInfo.fullname}</div>
+                {manualPatientInfo.identificationNumber && (
+                  <div><strong>Documento:</strong> {manualPatientInfo.identificationNumber}</div>
+                )}
+                <div><strong>ID:</strong> {manualPatientInfo.id}</div>
+              </div>
+            </div>
+          )}
+          {manualId && !manualPatientInfo && parseInt(manualId) > 0 && (
+            <div className="bg-blue-50 border border-blue-200 px-3 py-2 rounded text-sm text-blue-800">
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                <span>Verificando paciente con ID: <strong>{manualId}</strong>...</span>
+              </div>
             </div>
           )}
         </div>
