@@ -28,7 +28,7 @@ export default function QuickActions({ className, patientId }: QuickActionsProps
             <Link href={patientId ? `/doctor/prescription/new/${patientId}` : `/doctor/prescriptions`}>
                 <Button variant="default" className="w-full">Nueva prescripción</Button>
             </Link>
-            <Link href={patientId ? `/doctor/orders/new/${patientId}` : `/doctor/orders`}>
+            <Link href={patientId ? `/dashboard/doctor/orders/new/${patientId}` : `/dashboard/doctor/orders/new`}>
                 <Button variant="outline" className="w-full">Nueva orden médica</Button>
             </Link>
         </div>

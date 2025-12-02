@@ -1,9 +1,13 @@
 "use client";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppointmentStatusBadge from "@/components/ui/AppointmentStatusBadge";
 import { confirmAppointment } from "@/app/servicios/appointment.service";
 import type { AppointmentStatus } from "@/types/appointment";
+import { getOrdersByPatient } from "@/app/servicios/medical-order.service";
+import { getAuthTokenClient } from "@/lib/getAuthToken";
+import { FileText, AlertCircle } from "lucide-react";
+import type { MedicalOrderDTO } from "@/types/medical-order";
 
 export default function DashboardPaciente() {
   // Ejemplo de cita próxima para interacción de confirmación
@@ -16,6 +20,46 @@ export default function DashboardPaciente() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [medicalOrders, setMedicalOrders] = useState<MedicalOrderDTO[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [patientId, setPatientId] = useState<number | null>(null);
+
+  // Obtener ID del paciente del token
+  useEffect(() => {
+    const token = getAuthTokenClient();
+    if (token) {
+      try {
+        const payloadBase64 = token.split('.')[1];
+        if (payloadBase64) {
+          const b64 = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+          const json = JSON.parse(atob(b64.padEnd(b64.length + (4 - (b64.length % 4)) % 4, '=')));
+          const id = json.id || json.userId || json.sub;
+          setPatientId(id ? Number(id) : null);
+        }
+      } catch (e) {
+        console.error('Error parsing token:', e);
+      }
+    }
+  }, []);
+
+  // Cargar órdenes médicas
+  useEffect(() => {
+    if (!patientId) return;
+    
+    const fetchOrders = async () => {
+      try {
+        const orders = await getOrdersByPatient(patientId);
+        // Mostrar solo las 3 más recientes
+        setMedicalOrders(orders.slice(0, 3));
+      } catch (err) {
+        console.error('Error cargando órdenes:', err);
+      } finally {
+        setOrdersLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [patientId]);
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -66,8 +110,11 @@ export default function DashboardPaciente() {
           <p className="text-2xl font-bold text-green-600">3</p>
         </div>
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6">
-          <h3 className="font-semibold text-purple-900">Resultados Pendientes</h3>
-          <p className="text-2xl font-bold text-purple-600">1</p>
+          <h3 className="font-semibold text-purple-900">Órdenes Médicas</h3>
+          <p className="text-2xl font-bold text-purple-600">{ordersLoading ? '...' : medicalOrders.length}</p>
+          <Link href="/dashboard/patient/orders" className="text-sm text-purple-700 hover:underline mt-2 inline-block">
+            Ver todas →
+          </Link>
         </div>
       </div>
 
@@ -89,21 +136,55 @@ export default function DashboardPaciente() {
         </div>
 
         <div className="bg-white shadow rounded-lg p-4 sm:p-6">
-          <h3 className="text-lg font-semibold mb-4">Medicamentos Actuales</h3>
-          <div className="space-y-2">
-            <div className="flex justify-between items-center p-2 border rounded">
-              <span>Atorvastatina 20mg</span>
-              <span className="text-sm bg-green-100 text-green-800 px-2 rounded">Activo</span>
-            </div>
-            <div className="flex justify-between items-center p-2 border rounded">
-              <span>Metformina 500mg</span>
-              <span className="text-sm bg-green-100 text-green-800 px-2 rounded">Activo</span>
-            </div>
-            <div className="flex justify-between items-center p-2 border rounded">
-              <span>Losartán 50mg</span>
-              <span className="text-sm bg-yellow-100 text-yellow-800 px-2 rounded">Por terminar</span>
-            </div>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Mis Órdenes Médicas
+            </h3>
+            <Link href="/dashboard/patient/orders" className="text-sm text-blue-600 hover:underline">
+              Ver todas
+            </Link>
           </div>
+          
+          {ordersLoading ? (
+            <div className="text-center py-4 text-gray-500">Cargando órdenes...</div>
+          ) : medicalOrders.length === 0 ? (
+            <div className="text-center py-4 text-gray-500 flex flex-col items-center gap-2">
+              <AlertCircle className="h-8 w-8 text-gray-400" />
+              <p>No tienes órdenes médicas registradas</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {medicalOrders.map((order) => (
+                <div key={order.id} className="p-3 border rounded hover:bg-gray-50 transition">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <div className="font-medium capitalize">
+                        {order.type === 'laboratory' ? '🧪 Laboratorio' : '📷 Radiología'}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {new Date(order.requestedAt).toLocaleDateString('es-ES', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {order.tests.length} examen{order.tests.length !== 1 ? 'es' : ''}
+                      </div>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {order.status}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

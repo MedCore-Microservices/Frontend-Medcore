@@ -25,6 +25,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
         { label: 'Agenda Horarios', href: '/dashboard/schedule/ME' },
         { label: 'Pacientes', href: '/dashboard/pacientes' },
         { label: 'Cola de Pacientes', href: '/dashboard/queue' },
+        { label: 'Órdenes Médicas', href: '/dashboard/doctor/orders' },
         { label: 'Historia Clínica', href: '/dashboard/historiamedica/new' },
       ];
     case 'ENFERMERA':
@@ -41,6 +42,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
         { label: 'Inicio', href: '/dashboard' },
         { label: 'Mis Citas', href: '/dashboard/appointments' },
         { label: 'Mi Turno', href: '/patients/turno' },
+        { label: 'Mis Órdenes', href: '/dashboard/patient/orders' },
         { label: 'Perfil', href: '/seguridad/cambio-clave' },
         // Ruta dinámica a historia clínica del paciente
         ...(userId ? [{ label: 'Mi Historia Clínica', href: `/dashboard/historiamedica/patient/${userId}` }] : []),
