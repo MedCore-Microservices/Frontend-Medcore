@@ -7,19 +7,27 @@ export default function DashboardEnfermero() {
         <h2 className="text-2xl font-bold text-gray-900">Dashboard Enfermero/a</h2>
         <p className="text-gray-600">Gestión de cuidados y atención a pacientes</p>
       </div>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-blue-900">Pacientes Asignados</h3>
           <p className="text-2xl font-bold text-blue-600">12</p>
         </div>
-  <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-green-900">Medicamentos Pendientes</h3>
           <p className="text-2xl font-bold text-green-600">7</p>
         </div>
-  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-purple-900">Signos Vitales</h3>
           <p className="text-2xl font-bold text-purple-600">3</p>
+        </div>
+      </div>
+
+      {/* Acciones específicas de Enfermería movidas más abajo */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-semibold mb-4">Acciones</h3>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/dashboard/enfermeria/laboratorio" className="bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition">Órdenes de Laboratorio</Link>
         </div>
       </div>
 
@@ -41,7 +49,7 @@ export default function DashboardEnfermero() {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-semibold mb-4">Pacientes Críticos</h3>
           <div className="space-y-3">

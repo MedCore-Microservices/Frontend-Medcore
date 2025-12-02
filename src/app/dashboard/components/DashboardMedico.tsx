@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import AppointmentStatusBadge from "@/components/ui/AppointmentStatusBadge";
+import QuickActions from "@/app/dashboard/components/QuickActions";
 import { useEffect, useState } from "react";
 import { getAuthTokenClient } from '@/lib/getAuthToken';
 import { listAppointmentsByDoctor, startAppointment, completeAppointment, markNoShowAppointment, cancelAppointment } from "@/app/servicios/appointment.service";
@@ -73,15 +74,6 @@ export default function DashboardMedico() {
       <div className="bg-white shadow rounded-lg p-4 sm:p-6">
         <h2 className="text-2xl font-bold text-gray-900">Dashboard Médico</h2>
         <p className="text-gray-600">Gestión de pacientes y consultas</p>
-        {/* Acceso directo a Cola de Pacientes */}
-        <div className="mt-4">
-          <Link
-            href="/dashboard/queue"
-            className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition shadow-sm"
-          >
-            <span>Gestionar Cola (Turnos)</span>
-          </Link>
-        </div>
       </div>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
@@ -96,6 +88,22 @@ export default function DashboardMedico() {
         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 sm:p-6">
           <h3 className="font-semibold text-purple-900">Urgencias</h3>
           <p className="text-2xl font-bold text-purple-600">2</p>
+        </div>
+      </div>
+
+      {/* Acciones rápidas y Cola de Pacientes movidas más abajo */}
+      <div className="bg-white shadow rounded-lg p-4 sm:p-6">
+        <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
+        <div className="mb-4">
+          <QuickActions />
+        </div>
+        <div>
+          <Link
+            href="/dashboard/queue"
+            className="inline-flex items-center gap-2 bg-teal-600 text-white px-4 py-2 rounded hover:bg-teal-700 transition shadow-sm"
+          >
+            <span>Gestionar Cola (Turnos)</span>
+          </Link>
         </div>
       </div>
 

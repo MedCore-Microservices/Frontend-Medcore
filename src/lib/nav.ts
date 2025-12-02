@@ -33,6 +33,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
         { label: 'Inicio', href: '/dashboard' },
         { label: 'Citas', href: '/dashboard/appointments' },
         { label: 'Pacientes', href: '/dashboard/enfermero/pacientes' },
+        { label: 'Laboratorio', href: '/dashboard/enfermeria/laboratorio' },
       ];
     case 'PACIENTE':
     case 'paciente':
