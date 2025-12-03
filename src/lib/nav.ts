@@ -8,7 +8,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
     case 'administrador':
       return [
         { label: 'Inicio', href: '/dashboard' },
-        { label: 'Citas', href: '/dashboard/appointments' },
+        { label: 'Crear cita', href: '/dashboard/appointments' },
         { label: 'Usuarios', href: '/dashboard/seguridad/identificacion-usuario' },
         { label: 'Servicios', href: '/dashboard/servicios' },
         { label: 'Reportes', href: '/dashboard/reportes' },
@@ -18,8 +18,8 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
     case 'medico':
       return [
         { label: 'Inicio', href: '/dashboard' },
-        { label: 'Citas', href: '/dashboard/appointments' },
-        { label: 'Consultas', href: '/doctor/consultations' },
+        { label: 'Crear cita', href: '/dashboard/appointments' },
+        { label: 'Citas diarias', href: '/doctor/consultations' },
         { label: 'Hacer prescripción', href: '/dashboard/doctor/prescriptions' },
         // Nueva página de gestión de horarios (usa dynamic segment doctorId)
         { label: 'Agenda Horarios', href: '/dashboard/schedule/ME' },
@@ -32,7 +32,7 @@ export function buildNavItems(role: string, userId?: string): NavItem[] {
     case 'enfermera':
       return [
         { label: 'Inicio', href: '/dashboard' },
-        { label: 'Citas', href: '/dashboard/appointments' },
+        { label: 'Crear cita', href: '/dashboard/appointments' },
         { label: 'Pacientes', href: '/dashboard/enfermero/pacientes' },
         { label: 'Laboratorio', href: '/dashboard/enfermeria/laboratorio' },
       ];

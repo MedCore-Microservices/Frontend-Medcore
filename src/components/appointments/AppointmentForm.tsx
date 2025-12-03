@@ -89,12 +89,15 @@ export default function AppointmentForm({ mode }: Props) {
     try {
       if (mode === 'create') {
         await createAppointment(payload);
-        showToast('Cita creada', 'success');
+        showToast('Cita creada exitosamente', 'success');
       } else if (appointmentId) {
         await updateAppointment(appointmentId, payload);
         showToast('Cita actualizada', 'success');
       }
-      router.push('/dashboard/appointments');
+      // Redirigir a la vista de citas diarias del doctor
+      router.push('/doctor/consultations');
+      // Forzar recarga de la página para actualizar la lista
+      setTimeout(() => router.refresh(), 100);
     } catch(e:any) {
       showToast(e.message || 'Error guardando cita', 'error');
     }

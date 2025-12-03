@@ -28,25 +28,25 @@ export default function PrescriptionHistoryPage() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [patientData, prescData] = await Promise.all([
+          getPatient(patientId),
+          getPrescriptionsByPatient(patientId)
+        ]);
+        setPatient(patientData.patient);
+        setPrescriptions(prescData);
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+        alert('Error al cargar información');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     loadData();
   }, [patientId]);
-
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      const [patientData, prescData] = await Promise.all([
-        getPatient(patientId),
-        getPrescriptionsByPatient(patientId)
-      ]);
-      setPatient(patientData.patient);
-      setPrescriptions(prescData);
-    } catch (error) {
-      console.error('Error cargando datos:', error);
-      alert('Error al cargar información');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDownloadPDF = (prescriptionId: number) => {
     try {
@@ -204,7 +204,7 @@ export default function PrescriptionHistoryPage() {
                             className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm"
                           >
                             <div className="flex items-start gap-3">
-                              <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">
+                              <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shrink-0">
                                 {idx + 1}
                               </div>
                               <div className="flex-1">
