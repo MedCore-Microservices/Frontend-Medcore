@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
 import { Input } from './ui/input';
+import { getAuthTokenClient } from '@/lib/getAuthToken';
 
-export default function PatientVitals({ onSuccess = () => {} }) {
-  const [patientId, setPatientId] = useState('');
+const BUSINESS_URL = process.env.NEXT_PUBLIC_MS_BUSINESS_URL || 'http://localhost:3002';
+
+export default function PatientVitals({ patientId: initialPatientId, onSuccess = () => {} }) {
+  const [patientId, setPatientId] = useState(initialPatientId || '');
   const [systolic, setSystolic] = useState('');
   const [diastolic, setDiastolic] = useState('');
   const [heartRate, setHeartRate] = useState('');
@@ -75,11 +78,21 @@ export default function PatientVitals({ onSuccess = () => {} }) {
     };
 
     try {
-      const res = await fetch('/api/medical-records/vitals', {
+      const token = getAuthTokenClient();
+      // Guardar signos vitales como parte de una historia clínica
+      const res = await fetch(`${BUSINESS_URL}/api/medical-records`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include'
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          patientId: patientId ? Number(patientId) : undefined,
+          description: 'Registro de signos vitales',
+          diagnosis: 'Evaluación de signos vitales',
+          treatment: 'Seguimiento',
+          vitalSigns: payload.vitals
+        }),
       });
 
       const body = await res.json();

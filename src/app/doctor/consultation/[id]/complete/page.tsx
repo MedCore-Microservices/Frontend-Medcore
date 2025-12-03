@@ -1,10 +1,11 @@
 "use client";
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { getAppointmentById, completeAppointment } from '@/app/servicios/appointment.service';
 
-export default function ConsultationCompletePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function ConsultationCompletePage() {
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const [appointment, setAppointment] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);

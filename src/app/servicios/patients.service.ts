@@ -60,7 +60,12 @@ export async function searchPatients(options: SearchPatientsOptions) {
         headers
     });
     if (!res.ok) {
-        const errorDetails = await res.json().catch(() => ({}));
+        let errorDetails;
+        try {
+            errorDetails = await res.json();
+        } catch {
+            errorDetails = {};
+        }
         console.error('Error buscando pacientes:', errorDetails);
         throw new Error('Error buscando pacientes');
     }

@@ -114,7 +114,7 @@ export type UpsertAppointmentPayload = {
   doctorId: string;
   specializationId?: string;
   patientId?: string;
-  notes?: string;
+  reason?: string;
 };
 
 export async function createAppointment(payload: UpsertAppointmentPayload): Promise<AppointmentDTO> {

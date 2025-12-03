@@ -1,12 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
 import { Input } from './ui/input';
+import { getAuthTokenClient } from '@/lib/getAuthToken';
+import { createAppointment } from '@/app/servicios/appointment.service';
 
-export default function ConsultationForm({ onSuccess = () => {} }) {
-  const [patientId, setPatientId] = useState('');
-  const [patientName, setPatientName] = useState('');
+const BUSINESS_URL = process.env.NEXT_PUBLIC_MS_BUSINESS_URL || 'http://localhost:3002';
+
+export default function ConsultationForm({ 
+  appointmentId, 
+  initialPatientId, 
+  initialPatientName, 
+  initialReason,
+  onSuccess = () => {} 
+}) {
+  const [patientId, setPatientId] = useState(initialPatientId || '');
+  const [patientName, setPatientName] = useState(initialPatientName || '');
   const [date, setDate] = useState('');
-  const [reason, setReason] = useState('');
+  const [reason, setReason] = useState(initialReason || '');
   const [diagnosis, setDiagnosis] = useState('');
   const [treatment, setTreatment] = useState('');
   const [priority, setPriority] = useState('routine');
@@ -14,12 +24,20 @@ export default function ConsultationForm({ onSuccess = () => {} }) {
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
 
+  // Si cambian las props iniciales, actualizar estado (útil si cargan asíncronamente)
+  useEffect(() => {
+    if (initialPatientId) setPatientId(initialPatientId);
+    if (initialPatientName) setPatientName(initialPatientName);
+    if (initialReason) setReason(initialReason);
+  }, [initialPatientId, initialPatientName, initialReason]);
+
   const validate = () => {
     if (!patientId && !patientName) {
       setError('Debe indicar el paciente (ID o nombre).');
       return false;
     }
-    if (!date) {
+    // Si es nueva cita, fecha es obligatoria. Si es consulta existente, no.
+    if (!appointmentId && !date) {
       setError('Fecha y hora son requeridas.');
       return false;
     }
@@ -36,68 +54,103 @@ export default function ConsultationForm({ onSuccess = () => {} }) {
     if (!validate()) return;
     setLoading(true);
     setSuccessMsg(null);
-
-    const payload = {
-      patientId: patientId ? Number(patientId) : undefined,
-      patientName: patientName || undefined,
-      date,
-      reason,
-      diagnosis,
-      treatment,
-      priority,
-    };
+    setError(null);
 
     try {
-      const res = await fetch('/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include'
-      });
+      if (appointmentId) {
+        // MODO: Registrar Historia Clínica / Diagnóstico para cita existente
+        const token = getAuthTokenClient();
+        const payload = {
+          patientId: Number(patientId),
+          description: reason,
+          diagnosis: diagnosis,
+          treatment: treatment,
+          // Otros campos que MedicalRecord espera
+          doctorId: undefined, // El backend lo saca del token si es médico
+        };
 
-      const body = await res.json();
-      if (!res.ok) {
-        setError(body.message || 'Error creando la consulta');
+        const res = await fetch(`${BUSINESS_URL}/api/medical-records`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const body = await res.json();
+        if (!res.ok) {
+          throw new Error(body.message || 'Error guardando historia clínica');
+        }
+        
+        setSuccessMsg('Historia clínica guardada correctamente');
+        onSuccess(body);
+
       } else {
-        setSuccessMsg('Consulta creada correctamente');
+        // MODO: Crear nueva cita (Agendamiento)
+        const payload = {
+          patientId: patientId ? String(patientId) : undefined,
+          date, // ISO string o lo que espere el servicio
+          reason,
+          doctorId: undefined, // Se asignará o seleccionará
+          // diagnosis y treatment no se guardan al crear la cita inicial
+        };
+        
+        // Usamos el servicio existente que ya maneja la URL correcta
+        const created = await createAppointment(payload);
+        setSuccessMsg('Cita creada correctamente');
+        
+        // Limpiar formulario solo si es creación
         setPatientId('');
         setPatientName('');
         setDate('');
         setReason('');
-        setDiagnosis('');
-        setTreatment('');
-        setPriority('routine');
-        onSuccess(body);
+        onSuccess(created);
       }
+
     } catch (err) {
       console.error(err);
-      setError('Error de red al crear la consulta');
+      setError(err.message || 'Error de red al procesar la solicitud');
     } finally {
       setLoading(false);
     }
   };
 
+  const isEditMode = !!appointmentId;
+
   return (
     <Card>
       <form onSubmit={handleSubmit}>
         <CardHeader>
-          <CardTitle>Registrar consulta</CardTitle>
+          <CardTitle>{isEditMode ? 'Registrar atención médica' : 'Registrar nueva cita'}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-sm text-muted-foreground">Paciente ID</label>
-              <Input value={patientId} onChange={(e) => setPatientId(e.target.value)} placeholder="Id numérico (opcional)" />
+              <Input 
+                value={patientId} 
+                onChange={(e) => setPatientId(e.target.value)} 
+                placeholder="Id numérico" 
+                disabled={isEditMode} // No cambiar paciente en consulta activa
+              />
             </div>
             <div>
               <label className="text-sm text-muted-foreground">Nombre del paciente</label>
-              <Input value={patientName} onChange={(e) => setPatientName(e.target.value)} placeholder="Nombre completo" />
+              <Input 
+                value={patientName} 
+                onChange={(e) => setPatientName(e.target.value)} 
+                placeholder="Nombre completo" 
+                disabled={isEditMode}
+              />
             </div>
 
-            <div>
-              <label className="text-sm text-muted-foreground">Fecha y hora</label>
-              <input className="w-full rounded-md border px-3 py-2" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
-            </div>
+            {!isEditMode && (
+              <div>
+                <label className="text-sm text-muted-foreground">Fecha y hora</label>
+                <input className="w-full rounded-md border px-3 py-2" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} />
+              </div>
+            )}
 
             <div>
               <label className="text-sm text-muted-foreground">Prioridad</label>
@@ -109,18 +162,35 @@ export default function ConsultationForm({ onSuccess = () => {} }) {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm text-muted-foreground">Motivo</label>
-              <textarea className="w-full rounded-md border p-2" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} />
+              <label className="text-sm text-muted-foreground">Motivo de consulta</label>
+              <textarea 
+                className="w-full rounded-md border p-2" 
+                rows={3} 
+                value={reason} 
+                onChange={(e) => setReason(e.target.value)} 
+              />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm text-muted-foreground">Diagnóstico (opcional)</label>
-              <textarea className="w-full rounded-md border p-2" rows={3} value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} />
+              <label className="text-sm text-muted-foreground font-bold">Diagnóstico</label>
+              <textarea 
+                className="w-full rounded-md border p-2 bg-yellow-50" 
+                rows={3} 
+                value={diagnosis} 
+                onChange={(e) => setDiagnosis(e.target.value)} 
+                placeholder="Escriba el diagnóstico médico..."
+              />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-sm text-muted-foreground">Tratamiento (opcional)</label>
-              <textarea className="w-full rounded-md border p-2" rows={3} value={treatment} onChange={(e) => setTreatment(e.target.value)} />
+              <label className="text-sm text-muted-foreground font-bold">Tratamiento</label>
+              <textarea 
+                className="w-full rounded-md border p-2 bg-green-50" 
+                rows={3} 
+                value={treatment} 
+                onChange={(e) => setTreatment(e.target.value)} 
+                placeholder="Escriba el plan de tratamiento..."
+              />
             </div>
           </div>
 
@@ -130,13 +200,15 @@ export default function ConsultationForm({ onSuccess = () => {} }) {
         <CardFooter>
           <div className="flex items-center gap-2">
             <button type="submit" className="px-4 py-2 rounded-md bg-primary text-white" disabled={loading}>
-              {loading ? 'Guardando...' : 'Guardar consulta'}
+              {loading ? 'Guardando...' : (isEditMode ? 'Guardar Historia Clínica' : 'Crear Cita')}
             </button>
-            <button type="button" className="px-4 py-2 rounded-md border" onClick={() => {
-              setPatientId(''); setPatientName(''); setDate(''); setReason(''); setDiagnosis(''); setTreatment(''); setPriority('routine'); setError(null); setSuccessMsg(null);
-            }}>
-              Limpiar
-            </button>
+            {!isEditMode && (
+              <button type="button" className="px-4 py-2 rounded-md border" onClick={() => {
+                setPatientId(''); setPatientName(''); setDate(''); setReason(''); setDiagnosis(''); setTreatment(''); setPriority('routine'); setError(null); setSuccessMsg(null);
+              }}>
+                Limpiar
+              </button>
+            )}
           </div>
         </CardFooter>
       </form>

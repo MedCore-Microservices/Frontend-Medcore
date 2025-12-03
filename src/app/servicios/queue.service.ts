@@ -79,3 +79,17 @@ export function estimateWaitTime(position: number | null | undefined, serviceMin
   if (!position || position <= 0) return 0;
   return position * serviceMinutes; // minutos estimados
 }
+
+// Obtener estadísticas de la cola (si está llena, cuántos esperan, etc.)
+export interface QueueStats {
+  waiting: number;
+  maxCount: number;
+  isFull: boolean;
+  availableSlots: number;
+  currentTicket: QueueTicket | null;
+}
+
+export async function getQueueStats(doctorId: number): Promise<QueueStats> {
+  const res = await fetch(`${BUSINESS_URL}/api/queue/doctor/${doctorId}/stats`, { headers: authHeaders() });
+  return parse(res);
+}

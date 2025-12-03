@@ -162,7 +162,7 @@ export default function NewPrescriptionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -170,79 +170,79 @@ export default function NewPrescriptionPage() {
 
   if (!patient) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <p className="text-white text-xl">Paciente no encontrado</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-900 text-xl">Paciente no encontrado</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="text-blue-400 hover:text-blue-300 mb-4 flex items-center gap-2"
+            className="text-blue-600 hover:text-blue-700 mb-4 flex items-center gap-2"
           >
             ← Volver
           </button>
-          <h1 className="text-3xl font-bold mb-2">Nueva Prescripción</h1>
-          <p className="text-gray-400">Crea una prescripción médica para el paciente</p>
+          <h1 className="text-3xl font-bold mb-2 text-gray-900">Nueva Prescripción</h1>
+          <p className="text-gray-600">Crea una prescripción médica para el paciente</p>
         </div>
 
         {/* Patient Info Card */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-5 mb-6">
-          <h2 className="text-xl font-semibold mb-3">Información del Paciente</h2>
+        <div className="bg-white border border-gray-300 rounded-lg p-5 mb-6 shadow-sm">
+          <h2 className="text-xl font-semibold mb-3 text-gray-900">Información del Paciente</h2>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
-              <p className="text-sm text-gray-400">Nombre</p>
-              <p className="font-medium">{patient.fullname}</p>
+              <p className="text-sm text-gray-600">Nombre</p>
+              <p className="font-medium text-gray-900">{patient.fullname}</p>
             </div>
             <div>
-              <p className="text-sm text-gray-400">Documento</p>
-              <p className="font-medium">{patient.identificationNumber}</p>
+              <p className="text-sm text-gray-600">Documento</p>
+              <p className="font-medium text-gray-900">{patient.identificationNumber}</p>
             </div>
             {patient.age && (
               <div>
-                <p className="text-sm text-gray-400">Edad</p>
-                <p className="font-medium">{patient.age} años</p>
+                <p className="text-sm text-gray-600">Edad</p>
+                <p className="font-medium text-gray-900">{patient.age} años</p>
               </div>
             )}
             {patient.gender && (
               <div>
-                <p className="text-sm text-gray-400">Género</p>
-                <p className="font-medium">{patient.gender}</p>
+                <p className="text-sm text-gray-600">Género</p>
+                <p className="font-medium text-gray-900">{patient.gender}</p>
               </div>
             )}
             {patient.bloodType && (
               <div>
-                <p className="text-sm text-gray-400">Tipo de Sangre</p>
-                <p className="font-medium">{patient.bloodType}</p>
+                <p className="text-sm text-gray-600">Tipo de Sangre</p>
+                <p className="font-medium text-gray-900">{patient.bloodType}</p>
               </div>
             )}
           </div>
           {patient.allergies && (
-            <div className="mt-4 p-3 bg-red-900/20 border border-red-700 rounded">
-              <p className="text-red-400 font-medium">⚠️ Alergias conocidas:</p>
-              <p className="text-red-300 mt-1">{patient.allergies}</p>
+            <div className="mt-4 p-3 bg-red-100 border border-red-400 rounded">
+              <p className="text-red-800 font-medium">⚠️ Alergias conocidas:</p>
+              <p className="text-red-900 mt-1">{patient.allergies}</p>
             </div>
           )}
           {patient.chronicDiseases && (
-            <div className="mt-3 p-3 bg-yellow-900/20 border border-yellow-700 rounded">
-              <p className="text-yellow-400 font-medium">Enfermedades crónicas:</p>
-              <p className="text-yellow-300 mt-1">{patient.chronicDiseases}</p>
+            <div className="mt-3 p-3 bg-amber-100 border border-amber-400 rounded">
+              <p className="text-amber-800 font-medium">Enfermedades crónicas:</p>
+              <p className="text-amber-900 mt-1">{patient.chronicDiseases}</p>
             </div>
           )}
         </div>
 
         {/* Prescription Form */}
-        <form onSubmit={handleSubmit} className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Detalles de la Prescripción</h2>
+        <form onSubmit={handleSubmit} className="bg-white border border-gray-300 rounded-lg p-6 shadow-sm">
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Detalles de la Prescripción</h2>
 
           {/* Title */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-700">
               Título de la Prescripción <span className="text-red-500">*</span>
             </label>
             <input
@@ -250,27 +250,27 @@ export default function NewPrescriptionPage() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Ej: Tratamiento para infección respiratoria"
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
 
           {/* Notes */}
           <div className="mb-6">
-            <label className="block text-sm font-medium mb-2">Notas e Indicaciones</label>
+            <label className="block text-sm font-medium mb-2 text-gray-700">Notas e Indicaciones</label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Indicaciones especiales, recomendaciones, advertencias..."
               rows={4}
-              className="w-full px-4 py-2 bg-gray-900 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           {/* Medications */}
           <div className="mb-6">
             <div className="flex justify-between items-center mb-4">
-              <label className="text-lg font-medium">
+              <label className="text-lg font-medium text-gray-900">
                 Medicamentos <span className="text-red-500">*</span>
               </label>
               <button
@@ -314,10 +314,10 @@ export default function NewPrescriptionPage() {
               )}
             </button>
             {allergyWarnings.length > 0 && (
-              <div className="mt-3 p-4 bg-red-900/30 border-2 border-red-600 rounded-lg">
-                <p className="font-bold text-red-400 mb-2">⚠️ ADVERTENCIAS DE ALERGIAS:</p>
+              <div className="mt-3 p-4 bg-red-100 border-2 border-red-500 rounded-lg">
+                <p className="font-bold text-red-800 mb-2">⚠️ ADVERTENCIAS DE ALERGIAS:</p>
                 {allergyWarnings.map((warning, idx) => (
-                  <div key={idx} className="mb-2 text-red-300">
+                  <div key={idx} className="mb-2 text-red-900">
                     • {warning.medication.name} - Coincide con: {warning.matches.join(', ')}
                   </div>
                 ))}

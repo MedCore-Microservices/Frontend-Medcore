@@ -35,6 +35,7 @@ export default function ConsultationDetailClient({ id }: { id: string }) {
       await startAppointment(id);
       const appt = await getAppointmentById(id);
       setAppointment(appt);
+      setError(null);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error iniciando atención');
     }
@@ -42,8 +43,18 @@ export default function ConsultationDetailClient({ id }: { id: string }) {
 
   async function handleComplete() {
     try {
+      // Si la cita no está en IN_PROGRESS, primero la iniciamos
+      const currentStatus = appointment?.status?.toUpperCase?.() || '';
+      if (currentStatus !== 'in_progress' && currentStatus !== 'IN_PROGRESS') {
+        try {
+          await startAppointment(id);
+        } catch {
+          // Ignoramos el error si ya está en progreso o completada
+        }
+      }
       await completeAppointment(id);
-      router.push(`/doctor/consultation/${id}/complete`);
+      // Redirigir al dashboard principal después de completar exitosamente
+      router.push('/dashboard');
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error completando consulta');
     }
@@ -65,12 +76,21 @@ export default function ConsultationDetailClient({ id }: { id: string }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
-          <ConsultationForm onSuccess={(res) => console.log('consulta guardada', res)} />
+          <ConsultationForm 
+            appointmentId={id}
+            initialPatientId={appointment.patientId}
+            initialPatientName={appointment.patientName}
+            initialReason={appointment.reason || appointment.clinicalNotes}
+            onSuccess={(res) => {
+              console.log('consulta guardada', res);
+              // Opcional: recargar datos o mostrar toast
+            }} 
+          />
           <ClinicalNotes value={appointment.notes || ''} onChange={(html) => console.log('notes', html)} />
         </div>
 
         <div className="space-y-4">
-          <PatientVitals onSuccess={(res) => console.log('vitals saved', res)} />
+          <PatientVitals patientId={appointment.patientId} onSuccess={(res) => console.log('vitals saved', res)} />
         </div>
       </div>
     </div>

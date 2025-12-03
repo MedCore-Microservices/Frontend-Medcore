@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useCallback } from 'react';
-import { callNext, getCurrent, getWaiting, type QueueTicket } from '@/app/servicios/queue.service';
+import { callNext, getCurrent, getWaiting, getQueueStats, type QueueTicket, type QueueStats } from '@/app/servicios/queue.service';
 import { useSession } from 'next-auth/react';
 import { normalizarRol } from '@/lib/normalizarRol';
 
@@ -13,6 +13,7 @@ export default function DoctorQueuePage() {
   const [waiting, setWaiting] = useState<QueueTicket[]>([]);
   const [loadingCall, setLoadingCall] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [queueStats, setQueueStats] = useState<QueueStats | null>(null);
 
   const refresh = useCallback(async () => {
     // Evitar falso positivo mientras la sesión se está cargando
@@ -25,12 +26,14 @@ export default function DoctorQueuePage() {
       return;
     }
     try {
-      const [c, w] = await Promise.all([
+      const [c, w, stats] = await Promise.all([
         getCurrent(doctorId),
         getWaiting(doctorId),
+        getQueueStats(doctorId),
       ]);
       setCurrent(c);
       setWaiting(w || []);
+      setQueueStats(stats);
       setError(null); // limpiar error si todo salió bien
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'Error al actualizar la cola';
@@ -61,7 +64,35 @@ export default function DoctorQueuePage() {
   return (
     <div className="p-4 space-y-4">
       <h1 className="text-2xl font-bold">Cola de Pacientes</h1>
-      {error && <div className="text-red-600">{error}</div>}
+      {error && <div className="text-red-600 bg-red-50 border border-red-200 rounded p-3">{error}</div>}
+      
+      {/* Indicador de estado de la cola */}
+      {queueStats && (
+        <div className={`p-4 rounded shadow ${
+          queueStats.isFull 
+            ? 'bg-red-50 border-2 border-red-300' 
+            : queueStats.waiting >= 3 
+              ? 'bg-yellow-50 border-2 border-yellow-300'
+              : 'bg-green-50 border-2 border-green-300'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-bold text-lg">
+                {queueStats.isFull ? '🚫 Cola llena' : `✅ Cola disponible`}
+              </p>
+              <p className="text-sm mt-1">
+                {queueStats.waiting} de {queueStats.maxCount} espacios ocupados • {queueStats.availableSlots} disponibles
+              </p>
+            </div>
+            <div className={`text-3xl font-bold ${
+              queueStats.isFull ? 'text-red-600' : queueStats.waiting >= 3 ? 'text-yellow-600' : 'text-green-600'
+            }`}>
+              {queueStats.waiting}/{queueStats.maxCount}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded shadow p-4 flex items-center justify-between">
         <div>
           <p className="font-semibold">Ticket actual:</p>
@@ -73,7 +104,7 @@ export default function DoctorQueuePage() {
         </div>
         <button
           onClick={handleCallNext}
-          disabled={loadingCall}
+          disabled={loadingCall || waiting.length === 0}
           className="bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400 hover:bg-blue-700 transition"
         >
           {loadingCall ? 'Llamando...' : 'Llamar Siguiente'}
@@ -82,7 +113,13 @@ export default function DoctorQueuePage() {
       <div className="bg-white rounded shadow p-4">
         <div className="flex items-center justify-between mb-3">
           <p className="font-semibold">En espera</p>
-          <span className="text-sm bg-gray-100 border rounded px-2 py-1">{waiting.length} pacientes</span>
+          <span className={`text-sm border rounded px-3 py-1 font-medium ${
+            queueStats?.isFull 
+              ? 'bg-red-100 border-red-300 text-red-700' 
+              : 'bg-gray-100 border-gray-300'
+          }`}>
+            {waiting.length} pacientes
+          </span>
         </div>
         {waiting.length === 0 ? (
           <p className="text-gray-500">No hay pacientes en espera.</p>

@@ -11,8 +11,8 @@ const schema = z.object({
   date: z.string().min(1, 'Fecha requerida'),
   doctorId: z.string().min(1, 'Doctor requerido'),
   specializationId: z.string().optional(),
-  patientId: z.string().optional(),
-  notes: z.string().max(500, 'Máximo 500 caracteres').optional(),
+  patientId: z.string().min(1, 'ID de paciente requerido'),
+  reason: z.string().min(1, 'Motivo requerido').max(500, 'Máximo 500 caracteres'),
 });
 
 export type AppointmentFormValues = z.infer<typeof schema>;
@@ -29,7 +29,7 @@ export default function AppointmentForm({ mode }: Props) {
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset, watch } = useForm<AppointmentFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { date: '', doctorId: '', specializationId: '', notes: '' }
+    defaultValues: { date: '', doctorId: '', specializationId: '', reason: '' }
   });
   const [doctors, setDoctors] = useState<DoctorDTO[]>([]);
   const [specializations, setSpecializations] = useState<SpecializationDTO[]>([]);
@@ -66,7 +66,7 @@ export default function AppointmentForm({ mode }: Props) {
           reset({
             date: appt.date ? appt.date.slice(0,16) : '',
             doctorId: appt.doctorId || '',
-            notes: '',
+            reason: '', // TODO: mapear si viene del backend
             specializationId: undefined,
             patientId: appt.patientId,
           });
@@ -84,7 +84,7 @@ export default function AppointmentForm({ mode }: Props) {
       doctorId: values.doctorId,
       specializationId: values.specializationId || undefined,
       patientId: values.patientId || undefined,
-      notes: values.notes || undefined,
+      reason: values.reason || undefined,
     };
     try {
       if (mode === 'create') {
@@ -123,13 +123,14 @@ export default function AppointmentForm({ mode }: Props) {
         </select>
       </div>
       <div>
-        <label className='block text-sm font-medium mb-1'>Paciente (opcional)</label>
-        <input type='text' placeholder='patientId' className='border px-3 py-2 rounded w-full' {...register('patientId')} />
+        <label className='block text-sm font-medium mb-1'>Paciente ID</label>
+        <input type='text' placeholder='Ej: 5' className='border px-3 py-2 rounded w-full' {...register('patientId')} />
+        {errors.patientId && <p className='text-xs text-red-600'>{errors.patientId.message}</p>}
       </div>
       <div>
-        <label className='block text-sm font-medium mb-1'>Notas</label>
-        <textarea className='border px-3 py-2 rounded w-full' rows={4} {...register('notes')} />
-        {errors.notes && <p className='text-xs text-red-600'>{errors.notes.message}</p>}
+        <label className='block text-sm font-medium mb-1'>Motivo de la consulta</label>
+        <textarea className='border px-3 py-2 rounded w-full' rows={4} {...register('reason')} />
+        {errors.reason && <p className='text-xs text-red-600'>{errors.reason.message}</p>}
       </div>
       <div className='flex gap-3 pt-2'>
         <button disabled={isSubmitting} type='submit' className='bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-60'>

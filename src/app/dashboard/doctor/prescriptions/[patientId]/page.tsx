@@ -63,7 +63,7 @@ export default function PrescriptionHistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -71,54 +71,54 @@ export default function PrescriptionHistoryPage() {
 
   if (!patient) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <p className="text-white text-xl">Paciente no encontrado</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <p className="text-gray-900 text-xl">Paciente no encontrado</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6">
+    <div className="min-h-screen bg-gray-50 text-gray-900 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <button
             onClick={() => router.back()}
-            className="text-blue-400 hover:text-blue-300 mb-4 flex items-center gap-2"
+            className="text-blue-600 hover:text-blue-700 mb-4 flex items-center gap-2"
           >
             ← Volver
           </button>
-          <h1 className="text-3xl font-bold mb-2">Historial de Prescripciones</h1>
-          <p className="text-gray-400">Revisa todas las prescripciones médicas del paciente</p>
+          <h1 className="text-3xl font-bold mb-2 text-gray-900">Historial de Prescripciones</h1>
+          <p className="text-gray-600">Revisa todas las prescripciones médicas del paciente</p>
         </div>
 
         {/* Patient Card */}
-        <div className="bg-gray-800 border border-gray-700 rounded-lg p-5 mb-6">
+        <div className="bg-white border border-gray-300 rounded-lg p-5 mb-6 shadow-sm">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="text-xl font-semibold mb-3">{patient.fullname}</h2>
+              <h2 className="text-xl font-semibold mb-3 text-gray-900">{patient.fullname}</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="text-gray-400">Documento:</span>
-                  <span className="ml-2">{patient.identificationNumber}</span>
+                  <span className="text-gray-600">Documento:</span>
+                  <span className="ml-2 text-gray-900">{patient.identificationNumber}</span>
                 </div>
                 {patient.age && (
                   <div>
-                    <span className="text-gray-400">Edad:</span>
-                    <span className="ml-2">{patient.age} años</span>
+                    <span className="text-gray-600">Edad:</span>
+                    <span className="ml-2 text-gray-900">{patient.age} años</span>
                   </div>
                 )}
                 {patient.gender && (
                   <div>
-                    <span className="text-gray-400">Género:</span>
-                    <span className="ml-2">{patient.gender}</span>
+                    <span className="text-gray-600">Género:</span>
+                    <span className="ml-2 text-gray-900">{patient.gender}</span>
                   </div>
                 )}
               </div>
               {patient.allergies && (
-                <div className="mt-3 p-2 bg-red-900/20 border border-red-700 rounded">
-                  <span className="text-red-400 font-medium">⚠️ Alergias:</span>
-                  <span className="ml-2 text-red-300">{patient.allergies}</span>
+                <div className="mt-3 p-2 bg-red-100 border border-red-400 rounded">
+                  <span className="text-red-800 font-medium">⚠️ Alergias:</span>
+                  <span className="ml-2 text-red-900">{patient.allergies}</span>
                 </div>
               )}
             </div>
@@ -133,8 +133,8 @@ export default function PrescriptionHistoryPage() {
 
         {/* Prescriptions List */}
         {prescriptions.length === 0 ? (
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-12 text-center">
-            <p className="text-xl text-gray-400 mb-4">No hay prescripciones registradas</p>
+          <div className="bg-white border border-gray-300 rounded-lg p-12 text-center shadow-sm">
+            <p className="text-xl text-gray-600 mb-4">No hay prescripciones registradas</p>
             <p className="text-sm text-gray-500">Crea la primera prescripción para este paciente</p>
           </div>
         ) : (
@@ -142,18 +142,18 @@ export default function PrescriptionHistoryPage() {
             {prescriptions.map((presc) => (
               <div
                 key={presc.id}
-                className="bg-gray-800 border border-gray-700 rounded-lg overflow-hidden"
+                className="bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm"
               >
                 {/* Header */}
                 <div className="p-5 flex justify-between items-start">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold">{presc.title}</h3>
+                      <h3 className="text-xl font-semibold text-gray-900">{presc.title}</h3>
                       <span className="px-2 py-1 bg-blue-600 text-xs rounded">
                         ID: {presc.id}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-400 space-y-1">
+                    <div className="text-sm text-gray-600 space-y-1">
                       <p>
                         📅 Fecha:{' '}
                         {new Date(presc.createdAt).toLocaleDateString('es-ES', {
@@ -188,43 +188,43 @@ export default function PrescriptionHistoryPage() {
 
                 {/* Expanded Details */}
                 {expandedId === presc.id && (
-                  <div className="border-t border-gray-700 p-5 bg-gray-900">
+                  <div className="border-t border-gray-300 p-5 bg-gray-50">
                     {presc.notes && (
                       <div className="mb-4">
-                        <h4 className="font-semibold mb-2">Notas e Indicaciones:</h4>
-                        <p className="text-gray-300 whitespace-pre-line">{presc.notes}</p>
+                        <h4 className="font-semibold mb-2 text-gray-900">Notas e Indicaciones:</h4>
+                        <p className="text-gray-700 whitespace-pre-line">{presc.notes}</p>
                       </div>
                     )}
                     <div>
-                      <h4 className="font-semibold mb-3">Medicamentos Prescritos:</h4>
+                      <h4 className="font-semibold mb-3 text-gray-900">Medicamentos Prescritos:</h4>
                       <div className="space-y-3">
                         {presc.medications.map((med, idx) => (
                           <div
                             key={idx}
-                            className="bg-gray-800 border border-gray-600 rounded-lg p-4"
+                            className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm"
                           >
                             <div className="flex items-start gap-3">
                               <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold flex-shrink-0">
                                 {idx + 1}
                               </div>
                               <div className="flex-1">
-                                <h5 className="font-semibold mb-2">{med.name}</h5>
+                                <h5 className="font-semibold mb-2 text-gray-900">{med.name}</h5>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
                                   {med.dose && (
                                     <div>
-                                      <span className="text-gray-400">Dosis:</span>
-                                      <span className="ml-2">{med.dose}</span>
+                                      <span className="text-gray-600">Dosis:</span>
+                                      <span className="ml-2 text-gray-900">{med.dose}</span>
                                     </div>
                                   )}
                                   {med.frequency && (
                                     <div>
-                                      <span className="text-gray-400">Frecuencia:</span>
-                                      <span className="ml-2">{med.frequency}</span>
+                                      <span className="text-gray-600">Frecuencia:</span>
+                                      <span className="ml-2 text-gray-900">{med.frequency}</span>
                                     </div>
                                   )}
                                   {(med.duration || med.durationDays) && (
                                     <div>
-                                      <span className="text-gray-400">Duración:</span>
+                                      <span className="text-gray-600">Duración:</span>
                                       <span className="ml-2">
                                         {med.duration || `${med.durationDays} días`}
                                       </span>
@@ -232,11 +232,11 @@ export default function PrescriptionHistoryPage() {
                                   )}
                                 </div>
                                 {med.instructions && (
-                                  <div className="mt-2 p-2 bg-yellow-900/20 border border-yellow-700 rounded">
-                                    <span className="text-yellow-400 text-sm font-medium">
+                                  <div className="mt-2 p-2 bg-amber-100 border border-amber-400 rounded">
+                                    <span className="text-amber-800 text-sm font-medium">
                                       Instrucciones:
                                     </span>
-                                    <span className="ml-2 text-yellow-300 text-sm">
+                                    <span className="ml-2 text-amber-900 text-sm">
                                       {med.instructions}
                                     </span>
                                   </div>
