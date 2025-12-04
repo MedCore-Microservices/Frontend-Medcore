@@ -74,7 +74,7 @@ export default function DoctorOrdersPage() {
     const patientId = order.patient?.identificationNumber || '';
     
     if (searchTerm && 
-        !order.id.toLowerCase().includes(searchTerm.toLowerCase()) && 
+        !order.id.toString().toLowerCase().includes(searchTerm.toLowerCase()) && 
         !patientName.toLowerCase().includes(searchTerm.toLowerCase()) &&
         !patientId.toLowerCase().includes(searchTerm.toLowerCase())) {
       return false;
